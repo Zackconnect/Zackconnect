@@ -501,7 +501,6 @@ function renderCategories() {
         const matches = filters.length ? vehicles.filter(vehicle => filters.every(filter =>
             String(vehicle[filter.field] || '').toLowerCase() === String(filter.value).toLowerCase()
         )) : [];
-        if (filters.length && !matches.length) return;
 
         const link = document.createElement('a');
         link.className = 'market-category';
