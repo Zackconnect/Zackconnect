@@ -1,5 +1,4 @@
 (() => {
-    const demoLoginKey = 'zackconnectDemoLogin';
     const allowedPages = new Set([
         'about.html',
         'cars.html',
@@ -37,12 +36,12 @@
         if (element) element.textContent = message;
     }
 
-    function hasDemoLogin() {
-        return window.sessionStorage.getItem(demoLoginKey) === 'true';
+    function isAuthenticated() {
+        return localStorage.getItem('authToken') !== null;
     }
 
     function initHomeGate() {
-        if (hasDemoLogin()) return;
+        if (isAuthenticated()) return;
 
         document.addEventListener('click', event => {
             const link = event.target.closest('a[href]');
@@ -156,21 +155,18 @@
                     // Store token and user info
                     localStorage.setItem('authToken', response.token);
                     localStorage.setItem('userInfo', JSON.stringify(response.user));
-                    window.sessionStorage.setItem(demoLoginKey, 'true');
                     window.location.href = next;
                 } catch (error) {
                     console.error('Login error:', error);
                     alert(error.message || 'Login failed. Please check your credentials.');
                 }
             } else {
-                // Fallback to demo login
-                window.sessionStorage.setItem(demoLoginKey, 'true');
-                window.location.href = next;
+                alert('API not available. Please try again later.');
             }
         });
     }
 
-    if (!isAuthPage && pageName !== 'index.html' && !hasDemoLogin()) {
+    if (!isAuthPage && pageName !== 'index.html' && !isAuthenticated()) {
         const requestedPage = `${pageName}${window.location.search}${window.location.hash}`;
         window.location.replace(authUrl('signup.html', requestedPage));
         return;
