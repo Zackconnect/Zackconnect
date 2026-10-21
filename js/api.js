@@ -14,7 +14,6 @@ async function apiRequest(endpoint, options = {}) {
                 ...options.headers
             }
         });
-
         if (!response.ok) {
             const body = await response.json().catch(() => null);
             throw new Error(body?.message || `API error: ${response.status} ${response.statusText}`);
@@ -35,7 +34,6 @@ function adminHeaders() {
 // Vehicles API
 const VehiclesAPI = {
     async getAll() {
-        // Fetch both cars and tricycles
         const [cars, tricycles] = await Promise.all([
             apiRequest('/cars'),
             apiRequest('/tricycles')
@@ -263,9 +261,25 @@ const ContactAPI = {
     }
 };
 
+let publicContentCache = null;
+let publicContentRequest = null;
+
 const SiteContentAPI = {
     async getPublic() {
-        return apiRequest('/site-content');
+        if (publicContentCache && publicContentCache.expiresAt > Date.now()) {
+            return publicContentCache.value;
+        }
+        if (!publicContentRequest) {
+            publicContentRequest = apiRequest('/site-content')
+                .then(value => {
+                    publicContentCache = { value, expiresAt: Date.now() + 60000 };
+                    return value;
+                })
+                .finally(() => {
+                    publicContentRequest = null;
+                });
+        }
+        return publicContentRequest;
     },
 
     async getAdmin() {

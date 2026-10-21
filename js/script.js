@@ -251,6 +251,7 @@ const sampleVehicles = [
 window.zackconnectSampleVehicles = sampleVehicles;
 let vehicles = [];
 let filteredVehicles = [];
+let refreshInventory = () => {};
 let favourites = JSON.parse(localStorage.getItem('zackconnect_favourites')) || [];
 let useBackendAPI = true; // Set to false to use localStorage fallback
 
@@ -289,14 +290,12 @@ async function loadVehicles() {
     }
 }
 
-// Initialize the application
-document.addEventListener('DOMContentLoaded', async function() {
+// Initialize from local data first so slow or sleeping APIs never block the page.
+document.addEventListener('DOMContentLoaded', function() {
     initMobileMenu();
     initStickyHeader();
-    
-    // Load vehicles from backend
-    await loadVehicles();
-    await loadPublicSiteContent();
+    vehicles = [...window.ZackconnectData.readState(sampleVehicles).vehicles];
+    filteredVehicles = [...vehicles];
     
     // Show/hide logout button based on authentication
     const logoutBtn = document.getElementById('logoutBtn');
@@ -332,6 +331,22 @@ document.addEventListener('DOMContentLoaded', async function() {
     }
     
     if (toast) initToast();
+
+    const inventoryPages = new Set(['index.html', 'cars.html', 'tricycles.html', 'vehicle-details.html']);
+    const contentLoads = [loadPublicSiteContent()];
+    if (inventoryPages.has(currentPage)) contentLoads.push(loadVehicles());
+    Promise.all(contentLoads).then(() => {
+        refreshInventory();
+        if (currentPage === 'index.html') {
+            renderHomeCars();
+            renderHomeVehicleTiles();
+            renderCategories();
+            renderAnnouncements();
+        } else if (currentPage === 'vehicle-details.html') {
+            initVehicleDetailsPage();
+        }
+        window.ZackconnectApplySiteContent?.();
+    });
 });
 
 async function loadPublicSiteContent() {
@@ -599,6 +614,7 @@ function initCarsPage() {
     initCarsSearch(applyCarsFilters);
     initCarsSorting(applyCarsFilters);
     applyCarsFilters();
+    refreshInventory = applyCarsFilters;
 }
 
 function setCarFilterValue(select, value, label = value) {
@@ -706,7 +722,7 @@ function initTricyclesPage() {
 
     const bajajVehicles = vehicles.filter(v => v.category === 'bajaj');
     renderTricyclesListings(bajajVehicles);
-    initTricyclesFilters();
+    refreshInventory = initTricyclesFilters();
     initTricyclesTabs();
 }
 
@@ -1255,6 +1271,7 @@ function initTricyclesFilters() {
     }
 
     applyTricyclesFilters();
+    return applyTricyclesFilters;
 }
 
 // Initialize Tricycles Tabs

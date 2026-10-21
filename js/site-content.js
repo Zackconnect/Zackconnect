@@ -133,6 +133,7 @@
     }
 
     window.ZackconnectSiteContent = Object.freeze({ pages, fields, sections, images });
+    window.ZackconnectApplySiteContent = applySiteContent;
     document.addEventListener('DOMContentLoaded', applySiteContent);
     window.addEventListener('storage', event => {
         if (event.key === window.ZackconnectData?.storageKey) applySiteContent();
