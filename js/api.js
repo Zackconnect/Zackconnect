@@ -2,7 +2,7 @@
    Zackconnect - API Integration Layer
    ============================================ */
 
-const API_BASE_URL = 'http://localhost:3000/api';
+const API_BASE_URL = 'https://zackconnectautobackend.onrender.com/api';
 
 // API Helper Functions
 async function apiRequest(endpoint, options = {}) {

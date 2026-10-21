@@ -82,7 +82,7 @@
             link.href = authUrl('login.html', next);
         });
 
-        form.addEventListener('submit', event => {
+        form.addEventListener('submit', async event => {
             event.preventDefault();
             showMessage(message, '');
 
@@ -108,7 +108,22 @@
                 return;
             }
 
-            showMessage(message, 'Your details have not been sent or saved. Account creation will be available when the backend is connected.');
+            // Call backend API
+            if (window.ZackconnectAPI) {
+                try {
+                    showMessage(message, 'Creating your account...');
+                    await window.ZackconnectAPI.AuthAPI.signup({ name, email, password });
+                    showMessage(message, 'Account created successfully! Redirecting to login...');
+                    setTimeout(() => {
+                        window.location.href = authUrl('login.html', next);
+                    }, 2000);
+                } catch (error) {
+                    console.error('Signup error:', error);
+                    showMessage(message, error.message || 'Failed to create account. Please try again.');
+                }
+            } else {
+                showMessage(message, 'API not available. Please try again later.');
+            }
         });
     }
 
@@ -124,10 +139,34 @@
             link.href = authUrl('signup.html', next);
         });
 
-        form.addEventListener('submit', event => {
+        form.addEventListener('submit', async event => {
             event.preventDefault();
-            window.sessionStorage.setItem(demoLoginKey, 'true');
-            window.location.href = next;
+            const email = emailInput.value.trim();
+            const password = form.elements.password.value;
+
+            if (!email || !password) {
+                alert('Please enter email and password');
+                return;
+            }
+
+            // Call backend API
+            if (window.ZackconnectAPI) {
+                try {
+                    const response = await window.ZackconnectAPI.AuthAPI.login(email, password);
+                    // Store token and user info
+                    localStorage.setItem('authToken', response.token);
+                    localStorage.setItem('userInfo', JSON.stringify(response.user));
+                    window.sessionStorage.setItem(demoLoginKey, 'true');
+                    window.location.href = next;
+                } catch (error) {
+                    console.error('Login error:', error);
+                    alert(error.message || 'Login failed. Please check your credentials.');
+                }
+            } else {
+                // Fallback to demo login
+                window.sessionStorage.setItem(demoLoginKey, 'true');
+                window.location.href = next;
+            }
         });
     }
 
