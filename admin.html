@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Zackconnect Autos frontend-only admin dashboard prototype.">
+    <title>Admin Dashboard - Zackconnect Autos</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body class="admin-page">
+    <header class="admin-header">
+        <a class="admin-brand" href="index.html">
+            <img src="images/zackconnect-logo.png" alt="">
+            <span>Zackconnect Autos <small>Admin</small></span>
+        </a>
+        <a class="admin-store-link" href="index.html">View store</a>
+    </header>
+
+    <div class="admin-prototype-warning" role="note">
+        <strong>Prototype only:</strong> This dashboard has no admin login. Changes and submissions stay in this browser’s local storage—anyone using this browser can see them; nothing is sent to a server or synced across devices.
+    </div>
+
+    <main class="admin-layout">
+        <aside class="admin-sidebar" aria-label="Admin sections">
+            <p class="admin-sidebar-label">MANAGEMENT</p>
+            <button class="admin-tab active" type="button" data-panel="overview">Overview</button>
+            <button class="admin-tab" type="button" data-panel="vehicles">Vehicles</button>
+            <button class="admin-tab" type="button" data-panel="requests">Import requests</button>
+            <button class="admin-tab" type="button" data-panel="enquiries">Enquiries</button>
+            <button class="admin-tab" type="button" data-panel="home-tiles">Homepage tiles</button>
+            <button class="admin-tab" type="button" data-panel="categories">Categories</button>
+            <button class="admin-tab" type="button" data-panel="announcements">Announcements</button>
+            <button class="admin-tab" type="button" data-panel="site-content">Site content</button>
+        </aside>
+
+        <section class="admin-content">
+            <div id="adminMessage" class="admin-message" role="status" aria-live="polite"></div>
+
+            <section class="admin-panel" id="panel-overview">
+                <div class="admin-page-heading">
+                    <div>
+                        <p class="admin-eyebrow">ZACKCONNECT CONTROL PANEL</p>
+                        <h1>Overview</h1>
+                        <p>Review this browser’s listings, customer submissions, and recent changes.</p>
+                    </div>
+                </div>
+                <div class="admin-stat-grid">
+                    <article class="admin-stat-card"><span>Vehicles</span><strong id="vehicleTotal">0</strong></article>
+                    <article class="admin-stat-card"><span>Import requests</span><strong id="importTotal">0</strong></article>
+                    <article class="admin-stat-card"><span>Enquiries</span><strong id="enquiryTotal">0</strong></article>
+                    <article class="admin-stat-card"><span>Homepage tiles</span><strong id="homeTileTotal">0</strong></article>
+                    <article class="admin-stat-card"><span>Categories</span><strong id="categoryTotal">0</strong></article>
+                    <article class="admin-stat-card"><span>Announcements</span><strong id="announcementTotal">0</strong></article>
+                </div>
+                <div class="admin-card">
+                    <div class="admin-card-heading"><h2>Recent activity</h2></div>
+                    <div id="overviewActivity" class="admin-activity-list"></div>
+                </div>
+            </section>
+
+            <section class="admin-panel" id="panel-vehicles" hidden>
+                <div class="admin-page-heading">
+                    <div><p class="admin-eyebrow">INVENTORY</p><h1>Vehicles</h1><p>Add cars available to import or vehicles that have arrived in Ghana. Keep the listing status accurate so customers know what to expect.</p></div>
+                    <button class="btn btn-primary" id="toggleVehicleForm" type="button">Add vehicle</button>
+                </div>
+                <form class="admin-card admin-form" id="vehicleForm" hidden>
+                    <div class="admin-card-heading"><h2 id="vehicleFormTitle">New vehicle listing</h2><p>Choose whether a car is available to import or has arrived in Ghana. Import estimates must be confirmed with the customer.</p></div>
+                    <div class="admin-form-grid">
+                        <label>Category
+                            <select name="category" required>
+                                <option value="car">Car</option>
+                                <option value="bajaj-passenger">Passenger tricycle</option>
+                                <option value="bajaj-cargo">Cargo tricycle</option>
+                            </select>
+                        </label>
+                        <label id="vehicleListingTypeField">Car listing status
+                            <select name="listingType">
+                                <option value="import">Available to import</option>
+                                <option value="arrived">Arrived in Ghana</option>
+                            </select>
+                        </label>
+                        <label id="vehicleMakeField">Make <input name="make" type="text" maxlength="40" required placeholder="e.g. Toyota"></label>
+                        <label>Model <input name="model" type="text" maxlength="60" required placeholder="e.g. Corolla"></label>
+                        <label>Year <input name="year" type="number" min="1900" max="2100" required></label>
+                        <label>Condition
+                            <select name="condition" required><option value="used">Used</option><option value="new">New</option></select>
+                        </label>
+                        <label><span id="vehiclePriceLabel">Indicative price (GH₵)</span> <input name="price" type="number" min="1" step="1" required></label>
+                        <label id="vehicleLocationField">Location in Ghana
+                            <select name="location" required>
+                                <option value="accra">Accra</option><option value="koforidua">Koforidua</option>
+                            </select>
+                        </label>
+                        <label>Mileage (km) <input name="mileage" type="number" min="0" step="1"></label>
+                        <label class="admin-form-wide">Vehicle photos <input id="vehicleImageInput" name="images" type="file" accept="image/jpeg,image/png,image/webp" multiple required><span class="admin-field-note">Choose up to 10 JPG, PNG or WebP photos, 5 MB each. All photos belong to this one vehicle listing and appear together on its card and details page. When editing, leave empty to keep the current photos.</span></label>
+                        <div class="admin-vehicle-image-preview" id="vehicleImagePreview" hidden></div><span id="vehicleImageCount" class="admin-field-note" hidden></span><span id="vehicleImagePlaceholder" class="admin-vehicle-image-placeholder">Your vehicle photo previews will appear here</span>
+                        <label>Transmission
+                            <select name="transmission"><option value="">Not specified</option><option value="automatic">Automatic</option><option value="manual">Manual</option></select>
+                        </label>
+                        <label>Fuel type
+                            <select name="fuelType"><option value="">Not specified</option><option value="petrol">Petrol</option><option value="diesel">Diesel</option><option value="hybrid">Hybrid</option><option value="electric">Electric</option></select>
+                        </label>
+                        <label class="admin-checkbox"><input name="featured" type="checkbox"> Feature on homepage</label>
+                        <label class="admin-form-wide">Description <textarea name="description" rows="3" maxlength="1200" required></textarea></label>
+                    </div>
+                    <div class="admin-form-actions"><button class="btn btn-primary" id="vehicleSubmitButton" type="submit">Save listing</button><button class="btn btn-outline" id="cancelVehicleForm" type="button">Cancel</button></div>
+                </form>
+                <div class="admin-card">
+                    <div class="admin-card-heading"><h2>Vehicle listings</h2><p id="vehicleCountLabel"></p></div>
+                    <div class="admin-table-wrap"><table class="admin-table"><thead><tr><th>Vehicle</th><th>Category</th><th>Price / estimate</th><th>Status / location</th><th>Action</th></tr></thead><tbody id="vehicleRows"></tbody></table></div>
+                </div>
+            </section>
+
+            <section class="admin-panel" id="panel-requests" hidden>
+                <div class="admin-page-heading"><div><p class="admin-eyebrow">CUSTOMER ACTIVITY</p><h1>Import requests</h1><p>Import forms submitted from this browser appear here.</p></div></div>
+                <div class="admin-card"><div class="admin-card-heading"><h2>Submitted requests</h2></div><div id="requestList" class="admin-record-list"></div></div>
+            </section>
+
+            <section class="admin-panel" id="panel-enquiries" hidden>
+                <div class="admin-page-heading"><div><p class="admin-eyebrow">CUSTOMER ACTIVITY</p><h1>Enquiries</h1><p>Contact form submissions stored locally in this browser.</p></div></div>
+                <div class="admin-card"><div class="admin-card-heading"><h2>Submitted enquiries</h2></div><div id="enquiryList" class="admin-record-list"></div></div>
+            </section>
+
+            <section class="admin-panel" id="panel-categories" hidden>
+                <div class="admin-page-heading">
+                    <div><p class="admin-eyebrow">SITE NAVIGATION</p><h1>Categories</h1><p>Edit the homepage shortcuts shown in the vehicle category grid, or add and remove them.</p></div>
+                    <button class="btn btn-primary" id="toggleCategoryForm" type="button">Add category</button>
+                </div>
+                <form class="admin-card admin-form" id="categoryForm" hidden>
+                    <div class="admin-card-heading"><h2 id="categoryFormTitle">New homepage category</h2></div>
+                    <div class="admin-form-grid">
+                        <label>Category name <input name="label" type="text" maxlength="40" required placeholder="e.g. Electric cars"></label>
+                        <label class="admin-form-wide">Category picture <input id="categoryImageInput" name="picture" type="file" accept="image/jpeg,image/png,image/webp" required><span class="admin-field-note">Choose a JPG, PNG or WebP image up to 5 MB. Pictures are shown without cropping and stored in this browser.</span></label>
+                        <div class="admin-category-image-preview"><img id="categoryImagePreview" alt="Category picture preview" hidden><span id="categoryImagePlaceholder">Your picture preview will appear here</span></div>
+                        <label>Destination
+                            <select name="page" required><option value="cars.html">Cars</option><option value="tricycles.html">Tricycles</option><option value="import.html">Import</option><option value="contact.html">Contact</option></select>
+                        </label>
+                        <label>Filter field 1
+                            <select name="filterField"><option value="">No filter</option><option value="category">Vehicle category</option><option value="make">Make</option><option value="model">Model</option><option value="condition">Condition</option><option value="bajajType">Tricycle type</option></select>
+                        </label>
+                        <label>Filter value 1 <input name="filterValue" type="text" maxlength="40" placeholder="e.g. car, toyota, or used"></label>
+                        <label>Filter field 2
+                            <select name="filterField2"><option value="">No filter</option><option value="category">Vehicle category</option><option value="make">Make</option><option value="model">Model</option><option value="condition">Condition</option><option value="bajajType">Tricycle type</option></select>
+                        </label>
+                        <label>Filter value 2 <input name="filterValue2" type="text" maxlength="40" placeholder="Optional additional filter"></label>
+                    </div>
+                    <div class="admin-form-actions"><button class="btn btn-primary" id="categorySubmitButton" type="submit">Add category</button><button class="btn btn-outline" id="cancelCategoryForm" type="button">Cancel</button></div>
+                </form>
+                <div class="admin-card"><div class="admin-card-heading"><h2>Homepage categories</h2></div><div id="categoryList" class="admin-record-list"></div></div>
+            </section>
+
+            <section class="admin-panel" id="panel-home-tiles" hidden>
+                <div class="admin-page-heading">
+                    <div><p class="admin-eyebrow">HOMEPAGE DISPLAY</p><h1>Homepage tiles</h1><p>Add, edit, or remove the large photo tiles that link visitors to your car and tricycle pages.</p></div>
+                    <button class="btn btn-primary" id="toggleHomeTileForm" type="button">Add tile</button>
+                </div>
+                <form class="admin-card admin-form" id="homeTileForm" hidden>
+                    <div class="admin-card-heading"><h2 id="homeTileFormTitle">New homepage tile</h2><p>The whole photo tile will link to the selected vehicle page.</p></div>
+                    <div class="admin-form-grid">
+                        <label>Tile label <input name="label" type="text" maxlength="60" required placeholder="e.g. Cars"></label>
+                        <label>Destination
+                            <select name="page" required><option value="cars.html">Cars page</option><option value="tricycles.html">Tricycles page</option></select>
+                        </label>
+                        <label class="admin-form-wide">Tile photos (2–10) <input id="homeTileImageInput" name="images" type="file" accept="image/jpeg,image/png,image/webp" multiple required><span class="admin-field-note">Choose at least 2 and up to 10 JPG, PNG or WebP photos, up to 5 MB each. Select several at once, or choose photos one at a time; each selection is added to the preview. The photos rotate inside one fixed tile on the homepage. When editing, selecting photos replaces the current photo set; leave empty to keep it.</span></label>
+                        <div class="admin-category-image-preview"><div id="homeTileImagePreview" class="admin-multi-image-preview" hidden></div><span id="homeTileImagePlaceholder">Your tile photo previews will appear here</span><span id="homeTileImageCount" class="admin-field-note" hidden></span></div>
+                        <label>Photo attribution (optional) <input name="credit" type="text" maxlength="160" placeholder="e.g. Photo by the photographer, CC BY 4.0"></label>
+                        <label>Attribution link (optional) <input name="creditUrl" type="url" maxlength="500" placeholder="https://..."></label>
+                    </div>
+                    <div class="admin-form-actions"><button class="btn btn-primary" id="homeTileSubmitButton" type="submit">Add tile</button><button class="btn btn-outline" id="cancelHomeTileForm" type="button">Cancel</button></div>
+                </form>
+                <div class="admin-card"><div class="admin-card-heading"><h2>Homepage photo tiles</h2></div><div id="homeTileList" class="admin-record-list"></div></div>
+            </section>
+
+            <section class="admin-panel" id="panel-announcements" hidden>
+                <div class="admin-page-heading"><div><p class="admin-eyebrow">SITE CONTENT</p><h1>Announcements</h1><p>Publish and remove messages shown on the public homepage in this browser.</p></div></div>
+                <form class="admin-card admin-form" id="announcementForm">
+                    <div class="admin-card-heading"><h2 id="announcementFormTitle">Publish an announcement</h2></div>
+                    <div class="admin-form-grid">
+                        <label class="admin-form-wide">Title <input name="title" type="text" maxlength="80" required></label>
+                        <label class="admin-form-wide">Message <textarea name="message" rows="3" maxlength="300" required></textarea></label>
+                    </div>
+                    <div class="admin-form-actions"><button class="btn btn-primary" id="announcementSubmitButton" type="submit">Publish announcement</button><button class="btn btn-outline" id="cancelAnnouncementEdit" type="button" hidden>Cancel</button></div>
+                </form>
+                <div class="admin-card"><div class="admin-card-heading"><h2>Published announcements</h2></div><div id="announcementList" class="admin-record-list"></div></div>
+            </section>
+
+            <section class="admin-panel" id="panel-site-content" hidden>
+                <div class="admin-page-heading"><div><p class="admin-eyebrow">WEBSITE CONTENT</p><h1>Site content</h1><p>Edit page copy, replace banner images, and show or hide major public sections. Existing vehicle, category, tile, and announcement managers control their own content.</p></div></div>
+                <form class="admin-card admin-form" id="siteContentForm">
+                    <div class="admin-form-grid">
+                        <label>Page
+                            <select id="siteContentPage" name="page"></select>
+                        </label>
+                    </div>
+                    <div class="admin-card-heading"><h2>Text and labels</h2></div>
+                    <div class="admin-form-grid" id="siteContentFields"></div>
+                    <div class="admin-card-heading"><h2>Page sections</h2><p>Uncheck a section to hide it from visitors. You can restore it at any time.</p></div>
+                    <div class="admin-form-grid" id="siteContentSections"></div>
+                    <div class="admin-card-heading"><h2>Banner image</h2></div>
+                    <div class="admin-form-grid" id="siteContentImages"></div>
+                    <div class="admin-form-actions"><button class="btn btn-primary" id="siteContentSubmit" type="submit">Save page content</button><button class="btn btn-outline" id="siteContentReset" type="button">Restore page defaults</button></div>
+                </form>
+            </section>
+
+            <section class="admin-card admin-activity-full">
+                <div class="admin-card-heading"><h2>Activity log</h2><p>Records changes made using this dashboard and form submissions in this browser.</p></div>
+                <div id="activityList" class="admin-activity-list"></div>
+            </section>
+        </section>
+    </main>
+
+    <script src="js/data-store.js"></script>
+    <script src="js/script.js"></script>
+    <script src="js/site-content.js"></script>
+    <script src="js/admin.js"></script>
+</body>
+</html>

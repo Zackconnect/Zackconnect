@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Import vehicles from China, Canada, and the USA with Zackconnect Autos - Ghana's trusted vehicle dealership. Get transparent quotations and expert guidance.">
+    <title>Import a Vehicle - Zackconnect Autos</title>
+    <link rel="stylesheet" href="css/style.css">
+    <script src="js/auth.js"></script>
+</head>
+<body>
+    <!-- Header -->
+    <header class="header" id="header">
+        <div class="container">
+            <div class="header-content">
+                <div class="logo">
+                    <a href="index.html">
+                        <img src="images/zackconnect-logo.png" alt="Zackconnect Autos Logo" data-site-image="global.logo">
+                        <span>Zackconnect Autos</span>
+                    </a>
+                </div>
+                <nav class="nav" id="nav">
+                    <ul class="nav-list">
+                        <li><a href="index.html" class="nav-link">Home</a></li>
+                        <li><a href="cars.html" class="nav-link">Cars</a></li>
+                        <li><a href="tricycles.html" class="nav-link">Bajaj Tricycles</a></li>
+                        <li><a href="import.html" class="nav-link active">Import a Vehicle</a></li>
+                        <li><a href="about.html" class="nav-link">About Us</a></li>
+                        <li><a href="contact.html" class="nav-link">Contact</a></li>
+                    </ul>
+                </nav>
+                <div class="header-actions">
+                    <button class="hamburger" id="hamburger" aria-label="Toggle menu">
+                        <span></span>
+                        <span></span>
+                        <span></span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Mobile Menu -->
+    <div class="mobile-menu" id="mobileMenu">
+        <ul class="mobile-nav-list">
+            <li><a href="index.html" class="mobile-nav-link">Home</a></li>
+            <li><a href="cars.html" class="mobile-nav-link">Cars</a></li>
+            <li><a href="tricycles.html" class="mobile-nav-link">Bajaj Tricycles</a></li>
+            <li><a href="import.html" class="mobile-nav-link">Import a Vehicle</a></li>
+            <li><a href="about.html" class="mobile-nav-link">About Us</a></li>
+            <li><a href="contact.html" class="mobile-nav-link">Contact</a></li>
+        </ul>
+    </div>
+
+    <!-- Import Section -->
+    <section class="import-section" data-site-section="import.content">
+        <div class="container">
+            <div class="import-content">
+                <div class="import-info">
+                    <h2 class="section-title" data-site-content="import.serviceTitle">How Our Import Service Works</h2>
+                    
+                    <div class="import-steps">
+                        <h3 data-site-content="import.processTitle">The Import Process</h3>
+                        <ol>
+                            <li>The customer submits the vehicle requirements</li>
+                            <li>Zackconnect Autos reviews the request</li>
+                            <li>The company checks sourcing options</li>
+                            <li>Zackconnect Autos prepares a quotation based on the vehicle and applicable costs</li>
+                            <li>The customer reviews and approves the agreed terms</li>
+                            <li>Import arrangements proceed according to the agreement</li>
+                        </ol>
+                    </div>
+
+                    <div class="cost-breakdown">
+                        <h3 data-site-content="import.costTitle">Cost Breakdown</h3>
+                        <p>The final quotation may include the following items:</p>
+                        <ul>
+                            <li>Vehicle purchase price</li>
+                            <li>Shipping costs</li>
+                            <li>Insurance</li>
+                            <li>Applicable duties and taxes</li>
+                            <li>Port charges</li>
+                            <li>Clearing fees</li>
+                            <li>Local delivery (where relevant)</li>
+                        </ul>
+                        <p class="note">Note: Import charges vary based on vehicle type, origin, and current regulations. Availability, costs, and timelines depend on the specific vehicle, supplier, shipping arrangements, and applicable requirements. We provide transparent quotations with no hidden fees.</p>
+                    </div>
+
+                    <div class="import-countries">
+                        <h3 data-site-content="import.countriesTitle">We Import From</h3>
+                        <div class="countries-grid">
+                            <div class="country-card">
+                                <h4>China</h4>
+                                <p>Wide selection of vehicles at competitive prices</p>
+                            </div>
+                            <div class="country-card">
+                                <h4>Canada</h4>
+                                <p>Quality vehicles with documented history</p>
+                            </div>
+                            <div class="country-card">
+                                <h4>United States</h4>
+                                <p>Diverse inventory from trusted sources</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="import-form-container">
+                    <form id="importForm" class="import-form">
+                        <h3>Request an Import Quote</h3>
+                        <input type="hidden" id="importSourceVehicle" name="sourceVehicle">
+                        
+                        <div class="form-group">
+                            <label for="importName">Full Name *</label>
+                            <input type="text" id="importName" name="name" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="importPhone">Phone Number *</label>
+                            <input type="tel" id="importPhone" name="phone" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="importEmail">Email Address *</label>
+                            <input type="email" id="importEmail" name="email" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="importCountry">Preferred Country *</label>
+                            <select id="importCountry" name="country" required>
+                                <option value="">Select Country</option>
+                                <option value="china">China</option>
+                                <option value="canada">Canada</option>
+                                <option value="usa">United States of America</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="importVehicleType">Vehicle Type *</label>
+                            <select id="importVehicleType" name="vehicleType" required>
+                                <option value="">Select Vehicle Type</option>
+                                <option value="car">Car</option>
+                                <option value="suv">SUV</option>
+                                <option value="pickup">Pickup</option>
+                                <option value="van">Van</option>
+                                <option value="other">Other</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="importMakeModel">Preferred Make and Model</label>
+                            <input type="text" id="importMakeModel" name="makeModel" placeholder="e.g., Toyota Camry">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="importYear">Preferred Year or Year Range</label>
+                            <input type="text" id="importYear" name="year" placeholder="e.g., 2023 or 2020-2023">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="importCondition">New or Used *</label>
+                            <select id="importCondition" name="condition" required>
+                                <option value="">Select Condition</option>
+                                <option value="new">New</option>
+                                <option value="used">Used</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="importBudget">Budget in GH₵ *</label>
+                            <input type="number" id="importBudget" name="budget" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="importDrivePreference">Drive Preference</label>
+                            <select id="importDrivePreference" name="drivePreference">
+                                <option value="">No Preference</option>
+                                <option value="left-hand">Left-Hand Drive</option>
+                                <option value="right-hand">Right-Hand Drive</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="importSpecifications">Preferred Specifications</label>
+                            <textarea id="importSpecifications" name="specifications" rows="3" placeholder="Engine size, transmission, fuel type, color, etc."></textarea>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="importRequirements">Additional Requirements</label>
+                            <textarea id="importRequirements" name="requirements" rows="3" placeholder="Any specific requirements or preferences"></textarea>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="importContactMethod">Preferred Contact Method *</label>
+                            <select id="importContactMethod" name="contactMethod" required>
+                                <option value="">Select Contact Method</option>
+                                <option value="phone">Phone Call</option>
+                                <option value="whatsapp">WhatsApp</option>
+                                <option value="email">Email</option>
+                            </select>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary btn-full">Request My Import Quote</button>
+                        <p class="form-note">Frontend prototype: submissions are saved only in this browser and are not sent to Zackconnect Autos. Connect a backend to receive real requests.</p>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-brand">
+                    <div class="logo">
+                        <a href="index.html">
+                            <img src="images/zackconnect-logo.png" alt="" data-site-image="global.logo">
+                            <span>Zackconnect Autos</span>
+                        </a>
+                    </div>
+                    <p class="tagline" data-site-content="footer.tagline">Your Trusted Partner for Cars & Tricycles.</p>
+                </div>
+
+                <div class="footer-links">
+                    <div class="footer-column">
+                        <h4>Vehicles</h4>
+                        <ul>
+                            <li><a href="cars.html">Car Imports</a></li>
+                            <li><a href="tricycles.html">Bajaj Tricycles</a></li>
+                            <li><a href="import.html">Import a Vehicle</a></li>
+                        </ul>
+                    </div>
+                    <div class="footer-column">
+                        <h4>Company</h4>
+                        <ul>
+                            <li><a href="about.html">About Us</a></li>
+                            <li><a href="contact.html">Contact Us</a></li>
+                        </ul>
+                    </div>
+                    <div class="footer-column">
+                        <h4>Legal</h4>
+                        <ul>
+                            <li><a href="#">Privacy Policy</a></li>
+                            <li><a href="#">Terms and Conditions</a></li>
+                        </ul>
+                    </div>
+                    <div class="footer-column">
+                        <h4>Follow Us</h4>
+                        <div class="social-links">
+                            <a href="#" aria-label="Facebook">
+                                <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+                                    <path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/>
+                                </svg>
+                            </a>
+                            <a href="#" aria-label="Twitter">
+                                <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+                                    <path d="M23 3a10.9 10.9 0 0 1-3.14 1.53 4.48 4.48 0 0 0-7.86 3v1A10.66 10.66 0 0 1 3 4s-4 9 5 13a11.64 11.64 0 0 1-7 2c9 5 20 0 20-11.5a4.5 4.5 0 0 0-.08-.83A7.72 7.72 0 0 0 23 3z"/>
+                                </svg>
+                            </a>
+                            <a href="#" aria-label="Instagram">
+                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <rect x="2" y="2" width="20" height="20" rx="5" ry="5"/>
+                                    <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/>
+                                    <line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/>
+                                </svg>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2024 Zackconnect Autos. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="js/data-store.js"></script>
+    <script src="js/api.js"></script>
+    <script src="js/script.js"></script>
+    <script src="js/site-content.js"></script>
+</body>
+</html>

@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Cars available to import to Ghana from China, the USA, and Canada. Request an import quote from Zackconnect Autos.">
+    <title>Import Cars - Zackconnect Autos</title>
+    <link rel="stylesheet" href="css/style.css">
+    <script src="js/auth.js"></script>
+</head>
+<body class="car-listings-page">
+    <!-- Header -->
+    <header class="header" id="header">
+        <div class="container">
+            <div class="header-content">
+                <div class="logo">
+                    <a href="index.html">
+                        <img src="images/zackconnect-logo.png" alt="Zackconnect Autos Logo" data-site-image="global.logo">
+                        <span>Zackconnect Autos</span>
+                    </a>
+                </div>
+                <nav class="nav" id="nav">
+                    <ul class="nav-list">
+                        <li><a href="index.html" class="nav-link">Home</a></li>
+                        <li><a href="cars.html" class="nav-link active">Cars</a></li>
+                        <li><a href="tricycles.html" class="nav-link">Bajaj Tricycles</a></li>
+                        <li><a href="about.html" class="nav-link">About Us</a></li>
+                        <li><a href="contact.html" class="nav-link">Contact</a></li>
+                    </ul>
+                </nav>
+                <div class="header-actions">
+                    <button class="hamburger" id="hamburger" aria-label="Toggle menu">
+                        <span></span>
+                        <span></span>
+                        <span></span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Mobile Menu -->
+    <div class="mobile-menu" id="mobileMenu">
+        <ul class="mobile-nav-list">
+            <li><a href="index.html" class="mobile-nav-link">Home</a></li>
+            <li><a href="cars.html" class="mobile-nav-link">Cars</a></li>
+            <li><a href="tricycles.html" class="mobile-nav-link">Bajaj Tricycles</a></li>
+            <li><a href="about.html" class="mobile-nav-link">About Us</a></li>
+            <li><a href="contact.html" class="mobile-nav-link">Contact</a></li>
+        </ul>
+    </div>
+
+    <!-- Cars Inventory -->
+    <section class="inventory" data-site-section="cars.inventory">
+        <div class="container car-marketplace-layout">
+            <aside class="car-filter-sidebar" aria-label="Filter cars">
+                <div class="car-filter-panel car-filter-categories">
+                    <h2>Categories</h2>
+                    <p>Vehicles</p>
+                    <a class="car-category-active" href="cars.html">Cars <span id="carCategoryCount">0</span></a>
+                    <a href="tricycles.html">Bajaj tricycles</a>
+                </div>
+                <div id="carBrowseResults" class="car-filter-panel">
+                    <h2>Filters</h2>
+                    <div class="filters">
+                <div class="filter-group">
+                    <label>Make:</label>
+                    <select id="filterMake">
+                        <option value="">All Makes</option>
+                        <option value="toyota">Toyota</option>
+                        <option value="honda">Honda</option>
+                        <option value="hyundai">Hyundai</option>
+                        <option value="nissan">Nissan</option>
+                        <option value="mazda">Mazda</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label>Model:</label>
+                    <select id="filterModel">
+                        <option value="">All Models</option>
+                        <option value="corolla">Corolla</option>
+                        <option value="camry">Camry</option>
+                        <option value="civic">Civic</option>
+                        <option value="tucson">Tucson</option>
+                        <option value="hilux">Hilux</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label>Price Range:</label>
+                    <select id="filterPriceRange">
+                        <option value="">Any Price</option>
+                        <option value="0-50000">Under GH₵50,000</option>
+                        <option value="50000-100000">GH₵50,000 - GH₵100,000</option>
+                        <option value="100000-200000">GH₵100,000 - GH₵200,000</option>
+                        <option value="200000+">Above GH₵200,000</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label>Year:</label>
+                    <select id="filterYear">
+                        <option value="">Any Year</option>
+                        <option value="2024">2024</option>
+                        <option value="2023">2023</option>
+                        <option value="2022">2022</option>
+                        <option value="2021">2021</option>
+                        <option value="2020">2020</option>
+                        <option value="older">2019 & Older</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label>Condition:</label>
+                    <select id="filterCondition">
+                        <option value="">All Conditions</option>
+                        <option value="new">New</option>
+                        <option value="used">Used</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label>Transmission:</label>
+                    <select id="filterTransmission">
+                        <option value="">Any</option>
+                        <option value="automatic">Automatic</option>
+                        <option value="manual">Manual</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label>Fuel Type:</label>
+                    <select id="filterFuelType">
+                        <option value="">Any</option>
+                        <option value="petrol">Petrol</option>
+                        <option value="diesel">Diesel</option>
+                        <option value="electric">Electric</option>
+                        <option value="hybrid">Hybrid</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label>Body Type:</label>
+                    <select id="filterBodyType">
+                        <option value="">Any</option>
+                        <option value="sedan">Sedan</option>
+                        <option value="suv">SUV</option>
+                        <option value="pickup">Pickup</option>
+                        <option value="hatchback">Hatchback</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label>Location:</label>
+                    <select id="filterLocation">
+                        <option value="">All Locations</option>
+                        <option value="accra">Accra</option>
+                        <option value="koforidua">Koforidua</option>
+                    </select>
+                </div>
+                <button id="clearFilters" class="btn btn-secondary">Clear Filters</button>
+                    </div>
+                </div>
+            </aside>
+
+            <main class="car-marketplace-main">
+                <section id="carBrowseGroups" class="car-browse-groups">
+                    <div class="car-model-heading">
+                        <div>
+                            <h2 data-site-content="cars.modelsTitle">Browse cars by model and year</h2>
+                            <p data-site-content="cars.modelsSubtitle">Explore cars available to import. Request a quote to confirm availability and landed price.</p>
+                        </div>
+                        <a href="cars.html">All cars</a>
+                    </div>
+                    <div id="carModelYearGrid" class="car-model-year-grid"></div>
+                </section>
+
+                <div class="car-results-heading">
+                    <h2 data-site-content="cars.listingsTitle">Cars available to import</h2>
+                    <label>Sort:
+                        <select id="sortListings">
+                            <option value="newest">Recommended</option>
+                            <option value="price-low">Price: Low to High</option>
+                            <option value="price-high">Price: High to Low</option>
+                        </select>
+                    </label>
+                </div>
+                <div class="search-section">
+                    <input type="text" id="searchCars" placeholder="Search in Cars" class="search-input">
+                </div>
+                <div class="empty-state car-import-empty" id="carsNoInventory" hidden>
+                    <h3>Request a car import</h3>
+                    <p>Tell us the make and model you want from China, the USA, or Canada. We will confirm sourcing availability and prepare an import quote.</p>
+                </div>
+                <span class="listing-count" id="listingCount">Showing 0 cars</span>
+                <div class="listings-grid" id="carsGrid"></div>
+                <div class="empty-state" id="emptyState" style="display: none;">
+                    <svg width="80" height="80" viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <circle cx="40" cy="40" r="35" stroke="#E31837" stroke-width="2"/>
+                        <path d="M25 40h30M40 25v30" stroke="#E31837" stroke-width="2" stroke-linecap="round"/>
+                    </svg>
+                    <h3>No matching cars found</h3>
+                    <p>Try adjusting your filters or search criteria</p>
+                    <button id="resetSearch" class="btn btn-primary">Reset Search</button>
+                </div>
+            </div>
+
+            <p class="demo-note">Import prices and vehicle details are indicative examples, not guaranteed stock or final landed prices. Contact Zackconnect Autos to confirm the exact vehicle, sourcing availability, shipping, duties, and total cost. Cars that have arrived in Ghana can also be listed here.</p>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-brand">
+                    <div class="logo">
+                        <a href="index.html">
+                            <img src="images/zackconnect-logo.png" alt="" data-site-image="global.logo">
+                            <span>Zackconnect Autos</span>
+                        </a>
+                    </div>
+                    <p class="tagline" data-site-content="footer.tagline">Your Trusted Partner for Cars & Tricycles.</p>
+                </div>
+
+                <div class="footer-links">
+                    <div class="footer-column">
+                        <h4>Vehicles</h4>
+                        <ul>
+                            <li><a href="cars.html">Car Imports</a></li>
+                            <li><a href="tricycles.html">Bajaj Tricycles</a></li>
+                        </ul>
+                    </div>
+                    <div class="footer-column">
+                        <h4>Company</h4>
+                        <ul>
+                            <li><a href="about.html">About Us</a></li>
+                            <li><a href="contact.html">Contact Us</a></li>
+                        </ul>
+                    </div>
+                    <div class="footer-column">
+                        <h4>Legal</h4>
+                        <ul>
+                            <li><a href="#">Privacy Policy</a></li>
+                            <li><a href="#">Terms and Conditions</a></li>
+                        </ul>
+                    </div>
+                    <div class="footer-column">
+                        <h4>Follow Us</h4>
+                        <div class="social-links">
+                            <a href="#" aria-label="Facebook">
+                                <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+                                    <path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/>
+                                </svg>
+                            </a>
+                            <a href="#" aria-label="Twitter">
+                                <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+                                    <path d="M23 3a10.9 10.9 0 0 1-3.14 1.53 4.48 4.48 0 0 0-7.86 3v1A10.66 10.66 0 0 1 3 4s-4 9 5 13a11.64 11.64 0 0 1-7 2c9 5 20 0 20-11.5a4.5 4.5 0 0 0-.08-.83A7.72 7.72 0 0 0 23 3z"/>
+                                </svg>
+                            </a>
+                            <a href="#" aria-label="Instagram">
+                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <rect x="2" y="2" width="20" height="20" rx="5" ry="5"/>
+                                    <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/>
+                                    <line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/>
+                                </svg>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2024 Zackconnect Autos. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="js/data-store.js"></script>
+    <script src="js/api.js"></script>
+    <script src="js/script.js"></script>
+    <script src="js/site-content.js"></script>
+</body>
+</html>
