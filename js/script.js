@@ -314,7 +314,6 @@ document.addEventListener('DOMContentLoaded', function() {
     const currentPage = window.location.pathname.split('/').pop() || 'index.html';
 
     if (currentPage === 'index.html') {
-        renderHomeCars();
         renderHomeVehicleTiles();
         renderCategories();
         renderAnnouncements();
@@ -338,7 +337,6 @@ document.addEventListener('DOMContentLoaded', function() {
     Promise.all(contentLoads).then(() => {
         refreshInventory();
         if (currentPage === 'index.html') {
-            renderHomeCars();
             renderHomeVehicleTiles();
             renderCategories();
             renderAnnouncements();
@@ -409,18 +407,6 @@ function initStickyHeader() {
 
         lastScroll = currentScroll;
     });
-}
-
-function renderHomeCars() {
-    const section = document.getElementById('homeInventory');
-    const grid = document.getElementById('homeCarsGrid');
-    if (!section || !grid) return;
-
-    const cars = vehicles.filter(vehicle =>
-        vehicle.category === 'car' && vehicle.availability === 'available'
-    );
-    section.hidden = cars.length === 0;
-    grid.replaceChildren(...cars.map(createVehicleCard));
 }
 
 function renderHomeVehicleTiles() {
