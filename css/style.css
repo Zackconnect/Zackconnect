@@ -3975,6 +3975,46 @@ button.admin-store-link {
 }
 
 @media (max-width: 768px) {
+    .admin-layout {
+        grid-template-columns: minmax(0, 1fr);
+    }
+
+    .admin-sidebar {
+        display: flex;
+        gap: 8px;
+        overflow-x: auto;
+        overflow-y: hidden;
+        padding: 10px 16px;
+        border-right: 0;
+        border-bottom: 1px solid #e4e8ed;
+        -webkit-overflow-scrolling: touch;
+        scrollbar-width: thin;
+    }
+
+    .admin-tab {
+        width: auto;
+        flex: 0 0 auto;
+        margin: 0;
+        white-space: nowrap;
+    }
+
+    .admin-content,
+    .admin-panel,
+    .admin-card,
+    .admin-form-grid {
+        min-width: 0;
+    }
+
+    .admin-table-wrap {
+        max-width: 100%;
+        overscroll-behavior-x: contain;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    .admin-table {
+        min-width: 680px;
+    }
+
     .auth-header {
         min-height: 68px;
         padding: 10px 20px;
@@ -4059,8 +4099,38 @@ button.admin-store-link {
         padding: 18px 12px;
     }
 
+    .admin-card {
+        padding: 14px;
+    }
+
+    .admin-page-heading > div {
+        min-width: 0;
+        overflow-wrap: anywhere;
+    }
+
     .admin-page-heading-actions .btn {
         flex: 1 1 auto;
+        min-height: 44px;
+    }
+
+    .admin-form-actions .btn {
+        flex: 1 1 130px;
+        min-height: 44px;
+    }
+
+    .admin-form-grid input[type="file"] {
+        max-width: 100%;
+        font-size: 12px;
+    }
+
+    .admin-record {
+        min-width: 0;
+        padding: 12px;
+    }
+
+    .admin-record dl {
+        grid-template-columns: minmax(75px, 110px) minmax(0, 1fr);
+        gap: 6px 10px;
     }
 }
 
