@@ -21,6 +21,7 @@
     const vehicleImagePreview = document.getElementById('vehicleImagePreview');
     const vehicleImagePlaceholder = document.getElementById('vehicleImagePlaceholder');
     const vehicleImageCount = document.getElementById('vehicleImageCount');
+    const recoverLocalCarsButton = document.getElementById('recoverLocalCars');
     let vehicleImagePreviewUrls = [];
     let selectedVehicleImages = [];
 
@@ -79,6 +80,9 @@
     }
 
     async function loadDashboardData() {
+        const inventoryLoad = loadAdminVehicles().catch(error => {
+            showError(error);
+        });
         const localState = dataStore.readState(defaultVehicles);
         const [storedSettings, databaseRequests] = await Promise.all([
             siteContentApi.getAdmin(),
@@ -107,9 +111,14 @@
         const settingsChanged = !storedSettings ||
             !Array.isArray(storedSettings.requests) ||
             mergedLegacyRequests.length !== legacyRequests.length;
+        let settingsSaveError = null;
         if (settingsChanged) {
             dashboardSettings.requests = mergedLegacyRequests;
-            await saveDashboardState({ ...dataStore.readState(defaultVehicles), ...dashboardSettings }, 'Dashboard data is now saved to the shared database.');
+            try {
+                await saveDashboardState({ ...dataStore.readState(defaultVehicles), ...dashboardSettings }, 'Dashboard data is now saved to the shared database.');
+            } catch (error) {
+                settingsSaveError = error;
+            }
         }
         localStorage.setItem(dataStore.storageKey, JSON.stringify({
             ...dataStore.readState(defaultVehicles),
@@ -117,7 +126,9 @@
         }));
         renderSiteContentForm();
         render();
-        await loadAdminVehicles();
+        await inventoryLoad;
+        updateLocalCarRecoveryButton();
+        if (settingsSaveError) showError(settingsSaveError);
     }
 
     function showError(error) {
@@ -403,6 +414,129 @@
     async function loadAdminVehicles() {
         serverVehicles = await vehiclesApi.getAdminAll();
         render();
+        updateLocalCarRecoveryButton();
+    }
+
+    function vehicleRecoveryKey(vehicle) {
+        return [
+            String(vehicle.make || '').trim().toLowerCase(),
+            String(vehicle.model || '').trim().toLowerCase(),
+            String(vehicle.year || ''),
+            String(vehicle.price || ''),
+            vehicle.listingType === 'import' ? 'import' : 'arrived'
+        ].join('|');
+    }
+
+    function getRecoverableLocalCars() {
+        const savedState = localStorage.getItem(dataStore.storageKey);
+        if (!savedState) return [];
+
+        let state;
+        try {
+            state = JSON.parse(savedState);
+        } catch (error) {
+            throw new Error('Saved browser vehicle data could not be read. It has not been changed.', { cause: error });
+        }
+
+        if (!state || !Array.isArray(state.vehicles)) {
+            throw new Error('Saved browser vehicle data has an invalid format. It has not been changed.');
+        }
+
+        return state.vehicles.filter(vehicle =>
+            vehicle.category === 'car' && vehicle.availability !== 'sold' && vehicle.availability !== 'reserved'
+        );
+    }
+
+    function updateLocalCarRecoveryButton() {
+        if (!recoverLocalCarsButton) return;
+        try {
+            const serverCars = new Set(serverVehicles.map(vehicleRecoveryKey));
+            recoverLocalCarsButton.hidden = !getRecoverableLocalCars().some(car =>
+                !serverCars.has(vehicleRecoveryKey(car))
+            );
+        } catch (error) {
+            recoverLocalCarsButton.hidden = true;
+            showError(error);
+        }
+    }
+
+    if (recoverLocalCarsButton) {
+        recoverLocalCarsButton.addEventListener('click', async () => {
+            let localCars;
+            try {
+                localCars = getRecoverableLocalCars();
+            } catch (error) {
+                showError(error);
+                return;
+            }
+
+            if (!localCars.length) {
+                recoverLocalCarsButton.hidden = true;
+                setMessage('No saved browser car listings were found. Add a vehicle here to publish it.');
+                return;
+            }
+
+            const knownCars = new Set(serverVehicles.map(vehicleRecoveryKey));
+            const newCars = localCars.filter(localCar => {
+                const key = vehicleRecoveryKey(localCar);
+                if (knownCars.has(key)) return false;
+                knownCars.add(key);
+                return true;
+            });
+            if (!newCars.length) {
+                recoverLocalCarsButton.hidden = true;
+                setMessage('All saved browser car listings are already in the shared database.');
+                return;
+            }
+
+            if (!window.confirm(`Recover ${newCars.length} saved car listing${newCars.length === 1 ? '' : 's'} into the shared database so they appear for all visitors?`)) {
+                return;
+            }
+
+            recoverLocalCarsButton.disabled = true;
+            let recovered = 0;
+            const failures = [];
+            try {
+                for (const car of newCars) {
+                    const images = Array.isArray(car.images) && car.images.length
+                        ? car.images.slice(0, 10)
+                        : car.image ? [car.image] : [];
+                    if (!car.make || !car.model || !Number(car.year) || !Number(car.price)) {
+                        failures.push(`${car.title || 'A saved car'} is missing its make, model, year, or price`);
+                        continue;
+                    }
+                    if (!images.length) {
+                        failures.push(`${car.title || `${car.make} ${car.model}`} has no photo`);
+                        continue;
+                    }
+
+                    try {
+                        await vehiclesApi.saveAdmin({
+                            ...car,
+                            category: 'car',
+                            images,
+                            listingType: car.listingType === 'import' ? 'import' : 'arrived',
+                            availability: 'available'
+                        });
+                        recovered += 1;
+                    } catch (error) {
+                        failures.push(`${car.title || `${car.make} ${car.model}`}: ${error.message}`);
+                    }
+                }
+
+                await loadAdminVehicles();
+                updateLocalCarRecoveryButton();
+                if (failures.length) {
+                    showError(new Error(`Recovered ${recovered} car${recovered === 1 ? '' : 's'}. Could not recover ${failures.join('; ')}.`));
+                } else {
+                    setMessage(`Recovered ${recovered} saved car listing${recovered === 1 ? '' : 's'} to the shared database.`);
+                }
+            } catch (error) {
+                showError(error);
+            } finally {
+                recoverLocalCarsButton.disabled = false;
+            }
+        });
     }
 
     document.querySelectorAll('.admin-tab').forEach(tab => {

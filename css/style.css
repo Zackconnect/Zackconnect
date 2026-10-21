@@ -2413,6 +2413,13 @@ button.admin-store-link {
     margin-bottom: 24px;
 }
 
+.admin-page-heading-actions {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    gap: 10px;
+}
+
 .admin-page-heading h1 {
     margin: 0 0 5px;
     color: var(--secondary-color);
@@ -3296,6 +3303,11 @@ button.admin-store-link {
 
     .admin-page-heading {
         align-items: flex-start;
+    }
+
+    .admin-page-heading-actions {
+        width: 100%;
+        justify-content: flex-start;
     }
 
     .admin-page-heading h1 {
