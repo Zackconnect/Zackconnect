@@ -161,7 +161,9 @@
                     // Store token and user info
                     localStorage.setItem('authToken', response.token);
                     localStorage.setItem('userInfo', JSON.stringify(response.user));
-                    window.location.href = next;
+                    // Redirect admin users to admin.html, others to next page
+                    const redirectUrl = response.user.role === 'admin' ? 'admin.html' : next;
+                    window.location.href = redirectUrl;
                 } catch (error) {
                     console.error('Login error:', error);
                     alert(error.message || 'Login failed. Please check your credentials.');
