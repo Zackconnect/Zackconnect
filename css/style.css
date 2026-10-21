@@ -1345,6 +1345,21 @@ section {
     border-radius: var(--radius);
 }
 
+.selected-import-vehicle {
+    margin: 0 0 18px;
+    padding: 12px 14px;
+    border-left: 4px solid var(--primary-color);
+    border-radius: var(--radius);
+    background: #fff3f5;
+    color: var(--secondary-color);
+    font-size: 14px;
+    font-weight: 600;
+}
+
+.selected-import-vehicle[hidden] {
+    display: none;
+}
+
 .note {
     font-size: 14px;
     color: var(--text-light);

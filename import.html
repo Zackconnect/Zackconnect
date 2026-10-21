@@ -110,7 +110,9 @@
                 <div class="import-form-container">
                     <form id="importForm" class="import-form">
                         <h3>Request an Import Quote</h3>
+                        <p id="selectedImportVehicle" class="selected-import-vehicle" hidden></p>
                         <input type="hidden" id="importSourceVehicle" name="sourceVehicle">
+                        <input type="hidden" id="importSourceVehicleId" name="sourceVehicleId">
                         
                         <div class="form-group">
                             <label for="importName">Full Name *</label>
@@ -203,7 +205,7 @@
                         </div>
 
                         <button type="submit" class="btn btn-primary btn-full">Request My Import Quote</button>
-                        <p class="form-note">Frontend prototype: submissions are saved only in this browser and are not sent to Zackconnect Autos. Connect a backend to receive real requests.</p>
+                        <p class="form-note">Submitting this form requests a quote; it does not take payment. Zackconnect Autos will confirm availability and the final price before any payment is arranged.</p>
                     </form>
                 </div>
             </div>

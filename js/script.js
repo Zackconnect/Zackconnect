@@ -734,10 +734,10 @@ function renderTricyclesListings(vehiclesToRender) {
 // Render Vehicle Details Page
 function initVehicleDetailsPage() {
     const urlParams = new URLSearchParams(window.location.search);
-    const vehicleId = parseInt(urlParams.get('id'));
+    const vehicleId = urlParams.get('id');
     
     if (vehicleId) {
-        const vehicle = vehicles.find(v => v.id === vehicleId);
+        const vehicle = vehicles.find(v => String(v.id) === vehicleId);
         if (vehicle) {
             renderVehicleDetailsPage(vehicle);
         } else {
@@ -751,6 +751,15 @@ function initVehicleDetailsPage() {
 function renderVehicleDetailsPage(vehicle) {
     if (!vehicleDetailsContent) return;
     const vehicleTitle = escapeHtml(vehicle.title);
+    const importParams = new URLSearchParams({
+        makeModel: `${vehicle.make} ${vehicle.model}`,
+        year: String(vehicle.year),
+        condition: vehicle.condition,
+        vehicleType: vehicle.category === 'car' ? 'car' : 'other',
+        sourceVehicle: vehicle.title,
+        sourceVehicleId: String(vehicle.id),
+        estimatePrice: String(vehicle.price)
+    });
     
     const isImportListing = vehicle.category === 'car' && vehicle.listingType === 'import';
     const availabilityBadge = vehicle.availability === 'available'
@@ -859,7 +868,7 @@ function renderVehicleDetailsPage(vehicle) {
                 : 'Contact us to confirm availability and arrange a viewing.'}</p>
             <div class="contact-actions">
                 ${isImportListing
-                    ? `<a href="import.html?makeModel=${encodeURIComponent(`${vehicle.make} ${vehicle.model}`)}&year=${vehicle.year}&condition=${encodeURIComponent(vehicle.condition)}&vehicleType=car&sourceVehicle=${encodeURIComponent(vehicle.title)}" class="btn btn-primary">Request import quote</a>`
+                    ? `<a href="import.html?${importParams.toString()}" class="btn btn-primary">Request import quote</a>`
                     : ''}
                 <a href="tel:+233243739221" class="btn btn-primary">Call Zackconnect Autos</a>
                 <a href="https://wa.me/233243739221" class="btn btn-whatsapp">Chat on WhatsApp</a>
@@ -906,11 +915,23 @@ function initImportForm() {
         const conditionInput = document.getElementById('importCondition');
         const vehicleTypeInput = document.getElementById('importVehicleType');
         const sourceVehicleInput = document.getElementById('importSourceVehicle');
+        const sourceVehicleIdInput = document.getElementById('importSourceVehicleId');
+        const selectedVehicleNote = document.getElementById('selectedImportVehicle');
         if (params.has('makeModel')) makeModelInput.value = params.get('makeModel');
         if (params.has('year')) yearInput.value = params.get('year');
         if (params.has('condition')) conditionInput.value = params.get('condition');
         if (params.has('vehicleType')) vehicleTypeInput.value = params.get('vehicleType');
         if (params.has('sourceVehicle')) sourceVehicleInput.value = params.get('sourceVehicle');
+        if (params.has('sourceVehicleId')) sourceVehicleIdInput.value = params.get('sourceVehicleId');
+        if (params.has('sourceVehicle')) {
+            const estimate = Number(params.get('estimatePrice'));
+            const estimateText = Number.isFinite(estimate) && estimate > 0
+                ? ` · Indicative listing price: GH₵${estimate.toLocaleString()}`
+                : '';
+            selectedVehicleNote.textContent =
+                `Requesting a quote for: ${params.get('sourceVehicle')}${estimateText}. The final price will be confirmed by Zackconnect Autos.`;
+            selectedVehicleNote.hidden = false;
+        }
 
         importForm.addEventListener('submit', async (e) => {
             e.preventDefault();
@@ -919,6 +940,8 @@ function initImportForm() {
                     await window.ZackconnectAPI.ContactAPI.submitImport(Object.fromEntries(new FormData(importForm)));
                     showToast('Import request submitted successfully. Zackconnect Autos will contact you soon.', 'success');
                     importForm.reset();
+                    selectedVehicleNote.hidden = true;
+                    selectedVehicleNote.textContent = '';
                 } catch (error) {
                     console.error(error);
                     showToast('Could not save your import request. Please try again.', 'error');
@@ -1064,7 +1087,7 @@ function createVehicleCard(vehicle) {
     // Add event listener for view details
     const viewDetailsBtn = card.querySelector('.view-details');
     viewDetailsBtn.addEventListener('click', () => {
-        window.location.href = `vehicle-details.html?id=${vehicle.id}`;
+        window.location.href = `vehicle-details.html?id=${encodeURIComponent(vehicle.id)}`;
     });
 
     return card;
