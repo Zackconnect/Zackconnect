@@ -3,9 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Zackconnect Autos frontend-only admin dashboard prototype.">
+    <meta name="description" content="Manage Zackconnect Autos vehicle inventory.">
     <title>Admin Dashboard - Zackconnect Autos</title>
     <link rel="stylesheet" href="css/style.css">
+    <script src="js/api.js"></script>
+    <script src="js/auth.js"></script>
 </head>
 <body class="admin-page">
     <header class="admin-header">
@@ -13,11 +15,14 @@
             <img src="images/zackconnect-logo.png" alt="">
             <span>Zackconnect Autos <small>Admin</small></span>
         </a>
-        <a class="admin-store-link" href="index.html">View store</a>
+        <div class="admin-header-actions">
+            <a class="admin-store-link" href="index.html">View store</a>
+            <button class="admin-store-link" id="adminLogout" type="button">Log out</button>
+        </div>
     </header>
 
     <div class="admin-prototype-warning" role="note">
-        <strong>Prototype only:</strong> This dashboard has no admin login. Changes and submissions stay in this browser’s local storage—anyone using this browser can see them; nothing is sent to a server or synced across devices.
+        <strong>Inventory:</strong> Vehicle listings are stored in the shared database. Other dashboard settings and submissions remain in this browser’s local storage.
     </div>
 
     <main class="admin-layout">

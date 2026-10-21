@@ -5,10 +5,12 @@
         'contact.html',
         'import.html',
         'tricycles.html',
-        'vehicle-details.html'
+        'vehicle-details.html',
+        'admin.html'
     ]);
     const pageName = window.location.pathname.split('/').pop() || 'index.html';
     const isAuthPage = pageName === 'signup.html' || pageName === 'login.html';
+    const isAdminPage = pageName === 'admin.html';
 
     function destinationFrom(value) {
         if (!value) return 'index.html';
@@ -152,6 +154,10 @@
             if (window.ZackconnectAPI) {
                 try {
                     const response = await window.ZackconnectAPI.AuthAPI.login(email, password);
+                    if (next === 'admin.html' && response.user.role !== 'admin') {
+                        showMessage(document.getElementById('loginMessage'), 'This account does not have administrator access.');
+                        return;
+                    }
                     // Store token and user info
                     localStorage.setItem('authToken', response.token);
                     localStorage.setItem('userInfo', JSON.stringify(response.user));
@@ -164,6 +170,26 @@
                 alert('API not available. Please try again later.');
             }
         });
+    }
+
+    if (isAdminPage && !isAuthenticated()) {
+        window.location.replace(authUrl('login.html', 'admin.html'));
+        return;
+    }
+
+    if (isAdminPage) {
+        let userInfo;
+        try {
+            userInfo = JSON.parse(localStorage.getItem('userInfo') || 'null');
+        } catch {
+            userInfo = null;
+        }
+        if (userInfo?.role !== 'admin') {
+            localStorage.removeItem('authToken');
+            localStorage.removeItem('userInfo');
+            window.location.replace(authUrl('login.html', 'admin.html'));
+            return;
+        }
     }
 
     if (!isAuthPage && pageName !== 'index.html' && !isAuthenticated()) {

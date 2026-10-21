@@ -2332,6 +2332,20 @@ section {
     font-weight: 700;
 }
 
+.admin-header-actions {
+    display: flex;
+    align-items: center;
+    gap: 18px;
+}
+
+button.admin-store-link {
+    border: 0;
+    padding: 0;
+    background: transparent;
+    cursor: pointer;
+    font: inherit;
+}
+
 .admin-prototype-warning {
     padding: 12px max(20px, calc((100% - 1380px) / 2));
     background: #fff2d9;
@@ -3243,6 +3257,11 @@ section {
 @media (max-width: 520px) {
     .admin-header {
         min-height: 62px;
+    }
+
+    .admin-header-actions {
+        gap: 10px;
+        font-size: 0.9rem;
     }
 
     .admin-brand {

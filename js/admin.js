@@ -1,6 +1,10 @@
 (() => {
     const dataStore = window.ZackconnectData;
-    const defaultVehicles = window.zackconnectSampleVehicles;
+    const defaultVehicles = Array.isArray(window.zackconnectSampleVehicles)
+        ? window.zackconnectSampleVehicles
+        : [];
+    const vehiclesApi = window.ZackconnectAPI.VehiclesAPI;
+    let serverVehicles = [];
     const adminMessage = document.getElementById('adminMessage');
     const vehicleForm = document.getElementById('vehicleForm');
     const vehicleFormTitle = document.getElementById('vehicleFormTitle');
@@ -17,7 +21,7 @@
     let selectedVehicleImages = [];
 
     function getState() {
-        return dataStore.readState(defaultVehicles);
+        return { ...dataStore.readState(defaultVehicles), vehicles: serverVehicles };
     }
 
     function showError(error) {
@@ -91,11 +95,12 @@
             location.textContent = vehicle.listingType === 'import' ? 'Available to import' : vehicle.location;
             const action = document.createElement('td');
             action.append(createActionButton('Edit', 'admin-edit-button', () => openVehicleEditor(vehicle)));
-            action.append(createActionButton('Delete', 'admin-delete-button', () => {
+            action.append(createActionButton('Delete', 'admin-delete-button', async () => {
                 if (!window.confirm(`Delete "${vehicle.title}" from this browser's inventory?`)) return;
                 try {
-                    render(dataStore.removeVehicle(defaultVehicles, vehicle.id));
-                    setMessage('Vehicle removed from this browser’s inventory.');
+                    await vehiclesApi.deleteAdmin(vehicle);
+                    await loadAdminVehicles();
+                    setMessage('Vehicle deleted from the shared inventory.');
                 } catch (error) {
                     showError(error);
                 }
@@ -274,6 +279,7 @@
     }
 
     function render(state = getState()) {
+        state = { ...state, vehicles: serverVehicles };
         document.getElementById('vehicleTotal').textContent = state.vehicles.length;
         document.getElementById('importTotal').textContent = state.requests.filter(request => request.type === 'import').length;
         document.getElementById('enquiryTotal').textContent = state.requests.filter(request => request.type === 'enquiry').length;
@@ -288,6 +294,11 @@
         renderAnnouncements(state.announcements);
         renderActivities(state.activity, document.getElementById('overviewActivity'));
         renderActivities(state.activity, document.getElementById('activityList'));
+    }
+
+    async function loadAdminVehicles() {
+        serverVehicles = await vehiclesApi.getAdminAll();
+        render();
     }
 
     document.querySelectorAll('.admin-tab').forEach(tab => {
@@ -461,18 +472,18 @@
                 datePosted: existingVehicle?.datePosted || new Date().toISOString().slice(0, 10),
                 featured: Boolean(values.featured)
             };
-            render(editingId
-                ? dataStore.updateVehicle(defaultVehicles, editingId, vehicle)
-                : dataStore.addVehicle(defaultVehicles, vehicle));
+            await vehiclesApi.saveAdmin(vehicle, editingId);
+            await loadAdminVehicles();
             resetVehicleForm();
             clearVehicleImagePreview();
             vehicleForm.hidden = true;
-            setMessage(editingId ? 'Vehicle updated in this browser’s inventory.' : 'Vehicle added to this browser’s inventory.');
+            setMessage(editingId ? 'Vehicle updated in the shared inventory.' : 'Vehicle added to the shared inventory.');
         } catch (error) {
             showError(error);
         } finally {
             vehicleSubmitButton.disabled = false;
         }
+        loadAdminVehicles().catch(showError);
     });
 
     document.getElementById('announcementForm').addEventListener('submit', event => {
@@ -965,4 +976,10 @@
     } catch (error) {
         showError(error);
     }
+    loadAdminVehicles().catch(showError);
+    document.getElementById('adminLogout').addEventListener('click', () => {
+        localStorage.removeItem('authToken');
+        localStorage.removeItem('userInfo');
+        window.location.href = 'login.html';
+    });
 })();
