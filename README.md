@@ -93,7 +93,7 @@ Simply double-click `index.html` to open it in your browser. Note that some feat
 ### Search & Filters
 - Browse car import options and specifications; arrived cars can be listed separately
 - Request a car import from China, the USA, or Canada
-- Filter cars by make, model, year, condition, transmission, fuel type, body type, and location for arrived inventory
+- Filter import cars by source country (China, USA, or Canada); filter arrived cars by Ghana office (Accra or Koforidua), as well as make, model, year, condition, transmission, fuel type, and body type
 - Filter tricycles by type (passenger, cargo, commercial), condition, price range, and location
 - Sort by newest first, price low to high, or price high to low
 
@@ -119,7 +119,7 @@ The prototype includes sample Bajaj tricycle listings and example car import opt
 
 ## Frontend Admin Prototype and Backend Integration
 
-Open `admin.html` to add, edit, and delete vehicle listings, including uploading up to 10 photos per listing; choose several photos at once or add them one at a time. Set each car as an import option or as arrived in Ghana. Edit, add, and remove homepage photo tiles (labels, uploaded pictures, destinations, and optional image attribution) and category shortcuts; review and delete import requests and contact enquiries; publish, edit, and remove homepage announcements; and update public-page copy, banner images, and section visibility from the Site content panel. Review recent activity from the dashboard. Vehicle cards keep each listing together and let visitors browse its photos; the details page also displays the complete gallery. Uploaded vehicle, category, tile, and banner pictures are optimized and saved in local storage. Inventory, tile, category, announcement, and page-content changes appear on the public pages in that same browser. Category vehicle counts are calculated from the current inventory.
+Open `admin.html` to add, edit, and delete vehicle listings, including uploading up to 10 photos per listing; choose several photos at once or add them one at a time. Set each car as an import option with a source country (China, USA, or Canada), or as arrived in Ghana with an office location (Accra or Koforidua). Edit, add, and remove homepage photo tiles (labels, uploaded pictures, destinations, and optional image attribution) and category shortcuts; review and delete import requests and contact enquiries; publish, edit, and remove homepage announcements; and update public-page copy, banner images, and section visibility from the Site content panel. Review recent activity from the dashboard. Vehicle cards keep each listing together and let visitors browse its photos; the details page also displays the complete gallery. Uploaded vehicle, category, tile, and banner pictures are optimized and saved in local storage. Inventory, tile, category, announcement, and page-content changes appear on the public pages in that same browser. Category vehicle counts are calculated from the current inventory.
 
 This dashboard has **no admin authentication or authorization**. Its data stays in this browser’s local storage; anyone using this browser can see it, and it is not sent to a server or synced across devices. Do not use it for real customer information or production administration. Import requests and contact forms also save submissions locally only and make clear that they have not been delivered. Connect a backend before using the dashboard or forms with real users.
 

@@ -25,6 +25,7 @@ const sampleVehicles = [
         whatsapp: "+233 24 373 9221",
         availability: "available",
         listingType: "import",
+        sourceCountry: "usa",
         description: "Toyota Corolla import option. Confirm the exact vehicle, condition, shipping, and final landed price with Zackconnect Autos before purchase.",
         images: [
             "https://images.unsplash.com/photo-1621007947382-bb3c3994e3fb?w=800&h=600&fit=crop",
@@ -62,7 +63,8 @@ const sampleVehicles = [
         datePosted: "2024-01-14",
         featured: true,
         availability: "available",
-        listingType: "import"
+        listingType: "import",
+        sourceCountry: "china"
     },
     {
         id: 3,
@@ -90,7 +92,8 @@ const sampleVehicles = [
         datePosted: "2024-01-13",
         featured: false,
         availability: "available",
-        listingType: "import"
+        listingType: "import",
+        sourceCountry: "canada"
     },
     {
         id: 4,
@@ -118,7 +121,8 @@ const sampleVehicles = [
         datePosted: "2024-01-12",
         featured: true,
         availability: "available",
-        listingType: "import"
+        listingType: "import",
+        sourceCountry: "usa"
     },
     {
         id: 5,
@@ -146,7 +150,8 @@ const sampleVehicles = [
         datePosted: "2024-01-11",
         featured: false,
         availability: "available",
-        listingType: "import"
+        listingType: "import",
+        sourceCountry: "china"
     },
     {
         id: 6,
@@ -567,6 +572,7 @@ function initCarsPage() {
     const searchInput = document.getElementById('searchCars');
     const filterMake = document.getElementById('filterMake');
     const filterModel = document.getElementById('filterModel');
+    const filterCountry = document.getElementById('filterCountry');
     const filterLocation = document.getElementById('filterLocation');
 
     if (searchInput) searchInput.value = params.get('search') || '';
@@ -579,6 +585,7 @@ function initCarsPage() {
     renderCarModelYearGroups(params);
     if (filterMake && selectedMake) setCarFilterValue(filterMake, selectedMake);
     if (filterModel && selectedModel) setCarFilterValue(filterModel, selectedModel);
+    if (filterCountry && params.has('country')) filterCountry.value = params.get('country');
     if (filterLocation && params.has('location')) filterLocation.value = params.get('location');
 
     const carVehicles = vehicles.filter(v => v.category === 'car' && v.availability === 'available');
@@ -780,8 +787,10 @@ function renderVehicleDetailsPage(vehicle) {
         sourceVehicleId: String(vehicle.id),
         estimatePrice: String(vehicle.price)
     });
+    if (vehicle.sourceCountry) importParams.set('country', vehicle.sourceCountry);
     
     const isImportListing = vehicle.category === 'car' && vehicle.listingType === 'import';
+    const sourceCountryLabel = vehicle.sourceCountry ? formatSourceCountry(vehicle.sourceCountry) : '';
     const availabilityBadge = vehicle.availability === 'available'
         ? `<span class="availability-badge available">${isImportListing ? 'Available to import' : 'Available'}</span>`
         : '<span class="availability-badge sold">Sold</span>';
@@ -849,6 +858,13 @@ function renderVehicleDetailsPage(vehicle) {
                     </svg>
                     <span>Year: ${vehicle.year}</span>
                 </div>
+                ${isImportListing && sourceCountryLabel ? `<div class="spec-item">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="12" cy="12" r="10"/>
+                        <path d="M2 12h20M12 2a15 15 0 0 1 0 20M12 2a15 15 0 0 0 0 20"/>
+                    </svg>
+                    <span>Country of origin: ${escapeHtml(sourceCountryLabel)}</span>
+                </div>` : ''}
                 ${!isImportListing ? `<div class="spec-item">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                         <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/>
@@ -884,7 +900,7 @@ function renderVehicleDetailsPage(vehicle) {
         <div class="dealership-info">
             <h2>Contact Zackconnect Autos</h2>
             <p>${isImportListing
-                ? 'This car is available to import to Ghana. Contact us to confirm sourcing availability and get an up-to-date landed-price quote.'
+                ? `This car is available to import from ${sourceCountryLabel ? escapeHtml(sourceCountryLabel) : 'its listed source country'} to Ghana. Contact us to confirm sourcing availability and get an up-to-date landed-price quote.`
                 : 'Contact us to confirm availability and arrange a viewing.'}</p>
             <div class="contact-actions">
                 ${isImportListing
@@ -936,6 +952,7 @@ function initImportForm() {
         const vehicleTypeInput = document.getElementById('importVehicleType');
         const sourceVehicleInput = document.getElementById('importSourceVehicle');
         const sourceVehicleIdInput = document.getElementById('importSourceVehicleId');
+        const sourceCountryInput = document.getElementById('importCountry');
         const selectedVehicleNote = document.getElementById('selectedImportVehicle');
         if (params.has('makeModel')) makeModelInput.value = params.get('makeModel');
         if (params.has('year')) yearInput.value = params.get('year');
@@ -943,13 +960,15 @@ function initImportForm() {
         if (params.has('vehicleType')) vehicleTypeInput.value = params.get('vehicleType');
         if (params.has('sourceVehicle')) sourceVehicleInput.value = params.get('sourceVehicle');
         if (params.has('sourceVehicleId')) sourceVehicleIdInput.value = params.get('sourceVehicleId');
+        if (params.has('country')) sourceCountryInput.value = params.get('country');
         if (params.has('sourceVehicle')) {
             const estimate = Number(params.get('estimatePrice'));
             const estimateText = Number.isFinite(estimate) && estimate > 0
                 ? ` · Indicative listing price: GH₵${estimate.toLocaleString()}`
                 : '';
+            const sourceCountryText = formatSourceCountry(params.get('country'));
             selectedVehicleNote.textContent =
-                `Requesting a quote for: ${params.get('sourceVehicle')}${estimateText}. The final price will be confirmed by Zackconnect Autos.`;
+                `Requesting a quote for: ${params.get('sourceVehicle')}${sourceCountryText ? ` · Source: ${sourceCountryText}` : ''}${estimateText}. The final price will be confirmed by Zackconnect Autos.`;
             selectedVehicleNote.hidden = false;
         }
 
@@ -1022,6 +1041,7 @@ function createVehicleCard(vehicle) {
 
     const badgeClass = vehicle.condition === 'new' ? 'badge-new' : 'badge-used';
     const isImportListing = vehicle.category === 'car' && vehicle.listingType === 'import';
+    const sourceCountryLabel = vehicle.sourceCountry ? formatSourceCountry(vehicle.sourceCountry) : '';
     const availabilityBadge = vehicle.category === 'car'
         ? ''
         : vehicle.availability === 'available'
@@ -1081,7 +1101,7 @@ function createVehicleCard(vehicle) {
                 </span>` : ''}
             </div>
             <div class="vehicle-meta">
-                <span class="vehicle-location">${isImportListing ? 'Import to Ghana' : escapeHtml(formatLocation(vehicle.location))}</span>
+                <span class="vehicle-location">${isImportListing ? `From ${escapeHtml(sourceCountryLabel || 'country not specified')}` : escapeHtml(formatLocation(vehicle.location))}</span>
                 <span class="vehicle-seller">Zackconnect Autos</span>
             </div>
             <div class="vehicle-actions">
@@ -1122,6 +1142,15 @@ function formatLocation(location) {
     return locations[location] || location;
 }
 
+function formatSourceCountry(country) {
+    const countries = {
+        china: 'China',
+        usa: 'USA',
+        canada: 'Canada'
+    };
+    return countries[String(country || '').toLowerCase()] || '';
+}
+
 function escapeHtml(value) {
     return String(value ?? '').replace(/[&<>"']/g, character => ({
         '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
@@ -1147,11 +1176,12 @@ function initCarsFilters() {
     const filterTransmission = document.getElementById('filterTransmission');
     const filterFuelType = document.getElementById('filterFuelType');
     const filterBodyType = document.getElementById('filterBodyType');
+    const filterCountry = document.getElementById('filterCountry');
     const filterLocation = document.getElementById('filterLocation');
     const clearFilters = document.getElementById('clearFilters');
     const resetSearch = document.getElementById('resetSearch');
 
-    const filters = [filterMake, filterModel, filterPriceRange, filterYear, filterCondition, filterTransmission, filterFuelType, filterBodyType, filterLocation];
+    const filters = [filterMake, filterModel, filterPriceRange, filterYear, filterCondition, filterTransmission, filterFuelType, filterBodyType, filterCountry, filterLocation];
 
     filters.forEach(filter => {
         if (filter) {
@@ -1192,6 +1222,11 @@ function initCarsFilters() {
         if (filterCondition && filterCondition.value) carVehicles = carVehicles.filter(v => v.condition === filterCondition.value);
         if (filterTransmission && filterTransmission.value) carVehicles = carVehicles.filter(v => v.transmission === filterTransmission.value);
         if (filterFuelType && filterFuelType.value) carVehicles = carVehicles.filter(v => v.fuelType === filterFuelType.value);
+        if (filterCountry && filterCountry.value) {
+            carVehicles = carVehicles.filter(v =>
+                v.listingType === 'import' && v.sourceCountry === filterCountry.value
+            );
+        }
         if (filterLocation && filterLocation.value) {
             carVehicles = carVehicles.filter(v =>
                 v.listingType !== 'import' && v.location === filterLocation.value
@@ -1204,7 +1239,8 @@ function initCarsFilters() {
             carVehicles = carVehicles.filter(v =>
                 v.title.toLowerCase().includes(keyword) ||
                 v.make.toLowerCase().includes(keyword) ||
-                v.model.toLowerCase().includes(keyword)
+                v.model.toLowerCase().includes(keyword) ||
+                formatSourceCountry(v.sourceCountry).toLowerCase().includes(keyword)
             );
         }
         

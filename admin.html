@@ -73,7 +73,7 @@
                     </div>
                 </div>
                 <form class="admin-card admin-form" id="vehicleForm" hidden>
-                    <div class="admin-card-heading"><h2 id="vehicleFormTitle">New vehicle listing</h2><p>Choose whether a car is available to import or has arrived in Ghana. Import estimates must be confirmed with the customer.</p></div>
+                    <div class="admin-card-heading"><h2 id="vehicleFormTitle">New vehicle listing</h2><p>Choose whether a car is available to import or has arrived in Ghana. Select its source country for import listings. Import estimates must be confirmed with the customer.</p></div>
                     <div class="admin-form-grid">
                         <label>Category
                             <select name="category" required>
@@ -86,6 +86,14 @@
                             <select name="listingType">
                                 <option value="import">Available to import</option>
                                 <option value="arrived">Arrived in Ghana</option>
+                            </select>
+                        </label>
+                        <label id="vehicleSourceCountryField" hidden>Country of origin
+                            <select name="sourceCountry" disabled>
+                                <option value="">Choose a country</option>
+                                <option value="china">China</option>
+                                <option value="usa">USA</option>
+                                <option value="canada">Canada</option>
                             </select>
                         </label>
                         <label id="vehicleMakeField">Make <input name="make" type="text" maxlength="40" required placeholder="e.g. Toyota"></label>
@@ -116,7 +124,7 @@
                 </form>
                 <div class="admin-card">
                     <div class="admin-card-heading"><h2>Vehicle listings</h2><p id="vehicleCountLabel"></p></div>
-                    <div class="admin-table-wrap"><table class="admin-table"><thead><tr><th>Vehicle</th><th>Category</th><th>Price / estimate</th><th>Status / location</th><th>Action</th></tr></thead><tbody id="vehicleRows"></tbody></table></div>
+                    <div class="admin-table-wrap"><table class="admin-table"><thead><tr><th>Vehicle</th><th>Category</th><th>Price / estimate</th><th>Country / location</th><th>Action</th></tr></thead><tbody id="vehicleRows"></tbody></table></div>
                 </div>
             </section>
 

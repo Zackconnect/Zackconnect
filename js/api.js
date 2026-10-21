@@ -99,7 +99,8 @@ const VehiclesAPI = {
             Object.assign(body, {
                 make: vehicle.make,
                 transmission: vehicle.transmission,
-                listing_type: vehicle.listingType
+                listing_type: vehicle.listingType,
+                source_country: vehicle.listingType === 'import' ? vehicle.sourceCountry : null
             });
         } else {
             Object.assign(body, {
@@ -153,7 +154,8 @@ const VehiclesAPI = {
             datePosted: car.created_at,
             featured: Boolean(car.featured),
             availability: car.status === 'available' ? 'available' : 'sold',
-            listingType: car.listing_type || 'arrived'
+            listingType: car.listing_type || 'arrived',
+            sourceCountry: car.source_country || ''
         };
     },
 

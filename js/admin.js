@@ -15,6 +15,7 @@
     const vehicleSubmitButton = document.getElementById('vehicleSubmitButton');
     const vehicleMakeField = document.getElementById('vehicleMakeField');
     const vehicleListingTypeField = document.getElementById('vehicleListingTypeField');
+    const vehicleSourceCountryField = document.getElementById('vehicleSourceCountryField');
     const vehicleLocationField = document.getElementById('vehicleLocationField');
     const vehiclePriceLabel = document.getElementById('vehiclePriceLabel');
     const vehicleImageInput = document.getElementById('vehicleImageInput');
@@ -186,6 +187,11 @@
         });
     }
 
+    function formatSourceCountry(country) {
+        const countries = { china: 'China', usa: 'USA', canada: 'Canada' };
+        return countries[String(country || '').toLowerCase()] || 'Country not specified';
+    }
+
     function renderVehicles(state) {
         const rows = document.getElementById('vehicleRows');
         rows.replaceChildren();
@@ -200,7 +206,9 @@
             const price = document.createElement('td');
             price.textContent = `GH₵${Number(vehicle.price).toLocaleString()}`;
             const location = document.createElement('td');
-            location.textContent = vehicle.listingType === 'import' ? 'Available to import' : vehicle.location;
+            location.textContent = vehicle.listingType === 'import'
+                ? `Import from ${formatSourceCountry(vehicle.sourceCountry)}`
+                : vehicle.location;
             const action = document.createElement('td');
             action.append(createActionButton('Edit', 'admin-edit-button', () => openVehicleEditor(vehicle)));
             action.append(createActionButton('Delete', 'admin-delete-button', async () => {
@@ -588,6 +596,7 @@
             : 'car';
         vehicleForm.elements.listingType.value = vehicle.listingType || 'arrived';
         syncVehicleListingFields();
+        vehicleForm.elements.sourceCountry.value = vehicle.sourceCountry || '';
         vehicleForm.elements.make.value = (vehicle.make || '').replace(/\b\w/g, character => character.toUpperCase());
         vehicleForm.elements.model.value = vehicle.model || '';
         vehicleForm.elements.year.value = vehicle.year || '';
@@ -619,6 +628,10 @@
             vehicleForm.elements.make.value = 'Bajaj';
         }
         vehicleListingTypeField.hidden = !isCar;
+        vehicleSourceCountryField.hidden = !isImportListing;
+        vehicleForm.elements.sourceCountry.disabled = !isImportListing;
+        vehicleForm.elements.sourceCountry.required = isImportListing;
+        if (!isImportListing) vehicleForm.elements.sourceCountry.value = '';
         vehicleLocationField.hidden = isImportListing;
         vehicleForm.elements.location.required = !isImportListing;
         vehiclePriceLabel.textContent = isImportListing ? 'Indicative price (GH₵)' : 'Price (GH₵)';
@@ -710,6 +723,7 @@
                 whatsapp: '',
                 availability: 'available',
                 listingType: category === 'car' ? values.listingType : 'arrived',
+                sourceCountry: category === 'car' && values.listingType === 'import' ? values.sourceCountry : null,
                 description: values.description.trim(),
                 images,
                 datePosted: existingVehicle?.datePosted || new Date().toISOString().slice(0, 10),

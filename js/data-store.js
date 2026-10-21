@@ -118,19 +118,20 @@
                 image: images[0] || tile.image || ''
             };
         });
-        if (state.carImportCatalogVersion !== 1) {
+        if (state.carImportCatalogVersion !== 2) {
             let nextVehicleId = Math.max(0, ...state.vehicles.map(vehicle => Number(vehicle.id) || 0));
             defaultVehicles.filter(vehicle => vehicle.category === 'car').forEach(defaultVehicle => {
                 const existingVehicle = state.vehicles.find(vehicle => vehicle.title === defaultVehicle.title);
                 if (existingVehicle) {
                     existingVehicle.listingType = 'import';
+                    if (!existingVehicle.sourceCountry) existingVehicle.sourceCountry = defaultVehicle.sourceCountry;
                     return;
                 }
                 const idInUse = state.vehicles.some(vehicle => String(vehicle.id) === String(defaultVehicle.id));
                 const id = idInUse ? ++nextVehicleId : defaultVehicle.id;
                 state.vehicles.push({ ...defaultVehicle, id, listingType: 'import' });
             });
-            state.carImportCatalogVersion = 1;
+            state.carImportCatalogVersion = 2;
         }
         state.vehicles = state.vehicles.map(vehicle => ({
             ...vehicle,
