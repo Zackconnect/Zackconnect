@@ -297,9 +297,22 @@ document.addEventListener('DOMContentLoaded', async function() {
     // Load vehicles from backend
     await loadVehicles();
     
+    // Show/hide logout button based on authentication
+    const logoutBtn = document.getElementById('logoutBtn');
+    if (logoutBtn && window.ZackconnectAuth) {
+        if (window.ZackconnectAuth.isAuthenticated()) {
+            logoutBtn.style.display = 'inline-block';
+            logoutBtn.addEventListener('click', () => {
+                if (window.ZackconnectAuth.logout) {
+                    window.ZackconnectAuth.logout();
+                }
+            });
+        }
+    }
+
     // Page-specific initialization
     const currentPage = window.location.pathname.split('/').pop() || 'index.html';
-    
+
     if (currentPage === 'index.html') {
         renderHomeVehicleTiles();
         renderCategories();
@@ -451,8 +464,7 @@ function renderCategories() {
     const grid = document.getElementById('categoriesGrid');
     if (!grid) return;
 
-    const stlloes = new Set(['cars.html', 'tricycles.html', 'impor;
-    const categories = statet.ategories || window.ZackconnectData.defaultChtml', 'contact.html']);
+    const allowedPages = new Set(['cars.html', 'tricycles.html', 'import.html', 'contact.html']);
     const categories = window.ZackconnectData.readState(sampleVehicles).categories;
     grid.replaceChildren();
     categories.forEach(category => {

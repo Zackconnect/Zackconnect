@@ -42,6 +42,25 @@
         return localStorage.getItem('authToken') !== null;
     }
 
+    function logout() {
+        localStorage.removeItem('authToken');
+        localStorage.removeItem('userInfo');
+        window.location.href = 'index.html';
+    }
+
+    // Make logout available globally
+    window.ZackconnectAuth = {
+        logout,
+        isAuthenticated,
+        getUserInfo() {
+            try {
+                return JSON.parse(localStorage.getItem('userInfo') || 'null');
+            } catch {
+                return null;
+            }
+        }
+    };
+
     function initHomeGate() {
         if (isAuthenticated()) return;
 
