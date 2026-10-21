@@ -27,6 +27,11 @@ async function apiRequest(endpoint, options = {}) {
     }
 }
 
+function adminHeaders() {
+    const token = localStorage.getItem('authToken');
+    return { Authorization: `Bearer ${token}` };
+}
+
 // Vehicles API
 const VehiclesAPI = {
     async getAll() {
@@ -199,6 +204,89 @@ const ContactAPI = {
                 preferredMethod: formData.preferredMethod
             })
         });
+    },
+
+    async submitImport(fields) {
+        return apiRequest('/contact', {
+            method: 'POST',
+            body: JSON.stringify({
+                name: fields.name,
+                email: fields.email,
+                phone: fields.phone || '',
+                enquiryType: 'import',
+                subject: 'Vehicle import request',
+                message: 'Website import request',
+                preferredMethod: fields.preferredMethod || '',
+                fields
+            })
+        });
+    },
+
+    async getAdminAll() {
+        const rows = await apiRequest('/contact', { headers: adminHeaders() });
+        return rows.map(row => {
+            const isImport = row.enquiry_type === 'import';
+            let fields;
+            if (isImport) {
+                try {
+                    fields = JSON.parse(row.message);
+                } catch (error) {
+                    console.error(`Could not decode import request ${row.id}:`, error);
+                    fields = { name: row.name, email: row.email, phone: row.phone, message: row.message };
+                }
+            } else {
+                fields = {
+                    name: row.name,
+                    email: row.email,
+                    phone: row.phone,
+                    enquiryType: row.enquiry_type,
+                    subject: row.subject,
+                    message: row.message,
+                    preferredMethod: row.preferred_method
+                };
+            }
+            return {
+                id: String(row.id),
+                type: isImport ? 'import' : 'enquiry',
+                fields,
+                createdAt: row.created_at,
+                source: 'database'
+            };
+        });
+    },
+
+    async deleteAdmin(id) {
+        return apiRequest(`/contact/${encodeURIComponent(id)}`, {
+            method: 'DELETE',
+            headers: adminHeaders()
+        });
+    }
+};
+
+const SiteContentAPI = {
+    async getPublic() {
+        return apiRequest('/site-content');
+    },
+
+    async getAdmin() {
+        return apiRequest('/site-content/admin', { headers: adminHeaders() });
+    },
+
+    async saveAdmin(content) {
+        return apiRequest('/site-content/admin', {
+            method: 'PUT',
+            headers: adminHeaders(),
+            body: JSON.stringify({ content })
+        });
+    },
+
+    async uploadImage(image) {
+        const result = await apiRequest('/site-content/admin/image', {
+            method: 'POST',
+            headers: adminHeaders(),
+            body: JSON.stringify({ image })
+        });
+        return result.image;
     }
 };
 
@@ -223,5 +311,6 @@ const AuthAPI = {
 window.ZackconnectAPI = {
     VehiclesAPI,
     ContactAPI,
+    SiteContentAPI,
     AuthAPI
 };

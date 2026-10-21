@@ -296,6 +296,7 @@ document.addEventListener('DOMContentLoaded', async function() {
     
     // Load vehicles from backend
     await loadVehicles();
+    await loadPublicSiteContent();
     
     // Show/hide logout button based on authentication
     const logoutBtn = document.getElementById('logoutBtn');
@@ -314,6 +315,7 @@ document.addEventListener('DOMContentLoaded', async function() {
     const currentPage = window.location.pathname.split('/').pop() || 'index.html';
 
     if (currentPage === 'index.html') {
+        renderHomeCars();
         renderHomeVehicleTiles();
         renderCategories();
         renderAnnouncements();
@@ -331,6 +333,16 @@ document.addEventListener('DOMContentLoaded', async function() {
     
     if (toast) initToast();
 });
+
+async function loadPublicSiteContent() {
+    if (!window.ZackconnectAPI?.SiteContentAPI) return;
+    try {
+        window.ZackconnectPublicContent = await window.ZackconnectAPI.SiteContentAPI.getPublic();
+    } catch (error) {
+        console.error('Could not load shared website content:', error);
+        window.ZackconnectPublicContent = null;
+    }
+}
 
 window.addEventListener('storage', event => {
     const currentPage = window.location.pathname.split('/').pop() || 'index.html';
@@ -384,12 +396,24 @@ function initStickyHeader() {
     });
 }
 
+function renderHomeCars() {
+    const section = document.getElementById('homeInventory');
+    const grid = document.getElementById('homeCarsGrid');
+    if (!section || !grid) return;
+
+    const cars = vehicles.filter(vehicle =>
+        vehicle.category === 'car' && vehicle.availability === 'available'
+    );
+    section.hidden = cars.length === 0;
+    grid.replaceChildren(...cars.map(createVehicleCard));
+}
+
 function renderHomeVehicleTiles() {
     const grid = document.getElementById('homeVehicleTiles');
     if (!grid) return;
 
     const allowedPages = new Set(['cars.html', 'tricycles.html']);
-    const state = window.ZackconnectData.readState(sampleVehicles);
+    const state = window.ZackconnectPublicContent || window.ZackconnectData.readState(sampleVehicles);
     const tiles = state.homeTiles || window.ZackconnectData.defaultHomeTiles;
     grid.replaceChildren();
     grid.className = 'home-vehicle-pages-grid';
@@ -465,7 +489,8 @@ function renderCategories() {
     if (!grid) return;
 
     const allowedPages = new Set(['cars.html', 'tricycles.html', 'import.html', 'contact.html']);
-    const categories = window.ZackconnectData.readState(sampleVehicles).categories;
+    const content = window.ZackconnectPublicContent || window.ZackconnectData.readState(sampleVehicles);
+    const categories = content.categories || window.ZackconnectData.defaultCategories;
     grid.replaceChildren();
     categories.forEach(category => {
         if (!allowedPages.has(category.page)) {
@@ -509,7 +534,7 @@ function renderAnnouncements() {
     const list = document.getElementById('announcementsList');
     if (!section || !list) return;
 
-    const state = window.ZackconnectData.readState(sampleVehicles);
+    const state = window.ZackconnectPublicContent || window.ZackconnectData.readState(sampleVehicles);
     const announcements = state.announcements || [];
     list.replaceChildren();
     section.hidden = announcements.length === 0;
@@ -885,16 +910,16 @@ function initImportForm() {
         if (params.has('vehicleType')) vehicleTypeInput.value = params.get('vehicleType');
         if (params.has('sourceVehicle')) sourceVehicleInput.value = params.get('sourceVehicle');
 
-        importForm.addEventListener('submit', (e) => {
+        importForm.addEventListener('submit', async (e) => {
             e.preventDefault();
             if (validateForm(importForm)) {
                 try {
-                    window.ZackconnectData.addRequest(sampleVehicles, 'import', Object.fromEntries(new FormData(importForm)));
-                    showToast('This import request was saved in this browser only. It has not been sent to Zackconnect Autos.', 'success');
+                    await window.ZackconnectAPI.ContactAPI.submitImport(Object.fromEntries(new FormData(importForm)));
+                    showToast('Import request submitted successfully. Zackconnect Autos will contact you soon.', 'success');
                     importForm.reset();
                 } catch (error) {
                     console.error(error);
-                    showToast(error.message, 'error');
+                    showToast('Could not save your import request. Please try again.', 'error');
                 }
             }
         });
@@ -922,15 +947,6 @@ async function initContactForm() {
                     } catch (error) {
                         console.error('Failed to send message to backend:', error);
                         showToast('Failed to send message. Please try again or contact us directly.', 'error');
-                    }
-                } else {
-                    try {
-                        window.ZackconnectData.addRequest(sampleVehicles, 'enquiry', formData);
-                        showToast('This enquiry was saved in this browser only. It has not been sent to Zackconnect Autos.', 'success');
-                        contactForm.reset();
-                    } catch (error) {
-                        console.error(error);
-                        showToast(error.message, 'error');
                     }
                 }
             }

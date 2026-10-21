@@ -78,11 +78,25 @@
         { page: 'index.html', key: 'global.logo', label: 'Company logo (shared across pages)' }
     ];
 
-    function applySiteContent() {
+    async function applySiteContent() {
         if (!window.ZackconnectData || !window.zackconnectSampleVehicles) return;
-        const state = window.ZackconnectData.readState(window.zackconnectSampleVehicles);
+        let state = window.ZackconnectPublicContent;
+        if (!state && window.ZackconnectAPI?.SiteContentAPI) {
+            try {
+                state = await window.ZackconnectAPI.SiteContentAPI.getPublic();
+                window.ZackconnectPublicContent = state;
+            } catch (error) {
+                console.error('Could not load shared website content:', error);
+            }
+        }
+        state = state || window.ZackconnectData.readState(window.zackconnectSampleVehicles);
         const page = window.location.pathname.split('/').pop() || 'index.html';
-        const content = state.siteContent;
+        const content = {
+            text: {},
+            images: {},
+            hiddenSections: [],
+            ...(state.siteContent || {})
+        };
 
         document.querySelectorAll('[data-site-content]').forEach(element => {
             const value = content.text[element.dataset.siteContent];

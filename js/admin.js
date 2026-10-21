@@ -4,7 +4,11 @@
         ? window.zackconnectSampleVehicles
         : [];
     const vehiclesApi = window.ZackconnectAPI.VehiclesAPI;
+    const siteContentApi = window.ZackconnectAPI.SiteContentAPI;
+    const contactApi = window.ZackconnectAPI.ContactAPI;
     let serverVehicles = [];
+    let dashboardSettings = null;
+    let dashboardRequests = [];
     const adminMessage = document.getElementById('adminMessage');
     const vehicleForm = document.getElementById('vehicleForm');
     const vehicleFormTitle = document.getElementById('vehicleFormTitle');
@@ -21,7 +25,99 @@
     let selectedVehicleImages = [];
 
     function getState() {
-        return { ...dataStore.readState(defaultVehicles), vehicles: serverVehicles };
+        return {
+            ...dataStore.readState(defaultVehicles),
+            ...dashboardSettings,
+            requests: dashboardRequests,
+            vehicles: serverVehicles
+        };
+    }
+
+    async function uploadContentImage(image) {
+        return typeof image === 'string' && image.startsWith('data:image/')
+            ? siteContentApi.uploadImage(image)
+            : image;
+    }
+
+    async function prepareDashboardSettings(state) {
+        const categories = await Promise.all(state.categories.map(async category => ({
+            ...category,
+            image: await uploadContentImage(category.image)
+        })));
+        const homeTiles = await Promise.all(state.homeTiles.map(async tile => {
+            const images = await Promise.all((tile.images || [tile.image]).map(uploadContentImage));
+            return { ...tile, images, image: images[0] || '' };
+        }));
+        const contentImages = {};
+        for (const [key, image] of Object.entries(state.siteContent.images)) {
+            contentImages[key] = image ? await uploadContentImage(image) : '';
+        }
+        return {
+            categories,
+            homeTiles,
+            announcements: state.announcements,
+            activity: state.activity,
+            siteContent: { ...state.siteContent, images: contentImages },
+            carImportCatalogVersion: state.carImportCatalogVersion,
+            requests: state.requests
+        };
+    }
+
+    async function saveDashboardState(state, successMessage) {
+        const content = await prepareDashboardSettings(state);
+        dashboardSettings = await siteContentApi.saveAdmin(content);
+        dashboardRequests = [
+            ...dashboardSettings.requests.map(request => ({ ...request, source: 'legacy' })),
+            ...dashboardRequests.filter(request => request.source === 'database')
+        ];
+        localStorage.setItem(dataStore.storageKey, JSON.stringify({
+            ...dataStore.readState(defaultVehicles),
+            ...dashboardSettings
+        }));
+        render();
+        setMessage(successMessage);
+    }
+
+    async function loadDashboardData() {
+        const localState = dataStore.readState(defaultVehicles);
+        const [storedSettings, databaseRequests] = await Promise.all([
+            siteContentApi.getAdmin(),
+            contactApi.getAdminAll()
+        ]);
+        dashboardSettings = {
+            categories: Array.isArray(storedSettings?.categories) ? storedSettings.categories : localState.categories,
+            homeTiles: Array.isArray(storedSettings?.homeTiles) ? storedSettings.homeTiles : localState.homeTiles,
+            announcements: Array.isArray(storedSettings?.announcements) ? storedSettings.announcements : localState.announcements,
+            activity: Array.isArray(storedSettings?.activity) ? storedSettings.activity : localState.activity,
+            siteContent: storedSettings?.siteContent || localState.siteContent,
+            carImportCatalogVersion: storedSettings?.carImportCatalogVersion ?? localState.carImportCatalogVersion,
+            requests: Array.isArray(storedSettings?.requests) ? storedSettings.requests : []
+        };
+
+        const legacyRequests = dashboardSettings.requests;
+        const knownLegacyIds = new Set(legacyRequests.map(request => String(request.id)));
+        const mergedLegacyRequests = [
+            ...legacyRequests,
+            ...localState.requests.filter(request => !knownLegacyIds.has(String(request.id)))
+        ];
+        dashboardRequests = [
+            ...mergedLegacyRequests.map(request => ({ ...request, source: 'legacy' })),
+            ...databaseRequests
+        ];
+        const settingsChanged = !storedSettings ||
+            !Array.isArray(storedSettings.requests) ||
+            mergedLegacyRequests.length !== legacyRequests.length;
+        if (settingsChanged) {
+            dashboardSettings.requests = mergedLegacyRequests;
+            await saveDashboardState({ ...dataStore.readState(defaultVehicles), ...dashboardSettings }, 'Dashboard data is now saved to the shared database.');
+        }
+        localStorage.setItem(dataStore.storageKey, JSON.stringify({
+            ...dataStore.readState(defaultVehicles),
+            ...dashboardSettings
+        }));
+        renderSiteContentForm();
+        render();
+        await loadAdminVehicles();
     }
 
     function showError(error) {
@@ -57,7 +153,7 @@
     function renderActivities(activities, target) {
         target.replaceChildren();
         if (!activities.length) {
-            target.textContent = 'No activity recorded in this browser yet.';
+            target.textContent = 'No dashboard activity has been recorded yet.';
             return;
         }
 
@@ -96,7 +192,7 @@
             const action = document.createElement('td');
             action.append(createActionButton('Edit', 'admin-edit-button', () => openVehicleEditor(vehicle)));
             action.append(createActionButton('Delete', 'admin-delete-button', async () => {
-                if (!window.confirm(`Delete "${vehicle.title}" from this browser's inventory?`)) return;
+                if (!window.confirm(`Delete "${vehicle.title}" from the shared inventory?`)) return;
                 try {
                     await vehiclesApi.deleteAdmin(vehicle);
                     await loadAdminVehicles();
@@ -114,7 +210,7 @@
         const records = requests.filter(request => request.type === type);
         target.replaceChildren();
         if (!records.length) {
-            target.textContent = `No ${type === 'import' ? 'import requests' : 'enquiries'} have been saved in this browser.`;
+            target.textContent = `No ${type === 'import' ? 'import requests' : 'enquiries'} have been submitted.`;
             return;
         }
 
@@ -139,11 +235,19 @@
                 description.textContent = value;
                 details.append(term, description);
             });
-            card.append(heading, details, createActionButton('Delete submission', 'admin-delete-button', () => {
-                if (!window.confirm('Delete this submission from this browser?')) return;
+            card.append(heading, details, createActionButton('Delete submission', 'admin-delete-button', async () => {
+                if (!window.confirm('Delete this submission from the database?')) return;
                 try {
-                    render(dataStore.removeRequest(defaultVehicles, request.id));
-                    setMessage('Submission removed from this browser.');
+                    if (request.source === 'database') {
+                        await contactApi.deleteAdmin(request.id);
+                        dashboardRequests = dashboardRequests.filter(item => item.id !== request.id);
+                    } else {
+                        dashboardSettings.requests = dashboardSettings.requests.filter(item => String(item.id) !== String(request.id));
+                        dashboardRequests = dashboardRequests.filter(item => item.id !== request.id);
+                        await siteContentApi.saveAdmin(dashboardSettings);
+                    }
+                    render();
+                    setMessage('Submission deleted from the database.');
                 } catch (error) {
                     showError(error);
                 }
@@ -182,11 +286,11 @@
                 document.getElementById('announcementSubmitButton').textContent = 'Save changes';
                 document.getElementById('cancelAnnouncementEdit').hidden = false;
                 form.scrollIntoView({ behavior: 'smooth', block: 'start' });
-            }), createActionButton('Delete announcement', 'admin-delete-button', () => {
-                if (!window.confirm('Delete this announcement from this browser?')) return;
+            }), createActionButton('Delete announcement', 'admin-delete-button', async () => {
+                if (!window.confirm('Delete this announcement from the shared website?')) return;
                 try {
-                    render(dataStore.removeAnnouncement(defaultVehicles, announcement.id));
-                    setMessage('Announcement deleted from this browser.');
+                    const nextState = dataStore.removeAnnouncement(defaultVehicles, announcement.id);
+                    await saveDashboardState(nextState, 'Announcement deleted from the shared website.');
                 } catch (error) {
                     showError(error);
                 }
@@ -221,11 +325,11 @@
             actions.className = 'admin-category-actions';
             actions.append(
                 createActionButton('Edit', 'admin-edit-button', () => openCategoryEditor(category)),
-                createActionButton('Delete', 'admin-delete-button', () => {
+                createActionButton('Delete', 'admin-delete-button', async () => {
                     if (!window.confirm(`Remove "${category.label}" from the homepage?`)) return;
                     try {
-                        render(dataStore.removeCategory(defaultVehicles, category.id));
-                        setMessage('Homepage category removed.');
+                        const nextState = dataStore.removeCategory(defaultVehicles, category.id);
+                        await saveDashboardState(nextState, 'Homepage category removed from the shared website.');
                     } catch (error) {
                         showError(error);
                     }
@@ -263,11 +367,11 @@
             actions.className = 'admin-category-actions';
             actions.append(
                 createActionButton('Edit', 'admin-edit-button', () => openHomeTileEditor(tile)),
-                createActionButton('Delete', 'admin-delete-button', () => {
+                createActionButton('Delete', 'admin-delete-button', async () => {
                     if (!window.confirm(`Remove "${tile.label}" from the homepage?`)) return;
                     try {
-                        render(dataStore.removeHomeTile(defaultVehicles, tile.id));
-                        setMessage('Homepage tile removed.');
+                        const nextState = dataStore.removeHomeTile(defaultVehicles, tile.id);
+                        await saveDashboardState(nextState, 'Homepage tile removed from the shared website.');
                     } catch (error) {
                         showError(error);
                     }
@@ -486,7 +590,7 @@
         loadAdminVehicles().catch(showError);
     });
 
-    document.getElementById('announcementForm').addEventListener('submit', event => {
+    document.getElementById('announcementForm').addEventListener('submit', async event => {
         event.preventDefault();
         const form = event.currentTarget;
         const values = Object.fromEntries(new FormData(form));
@@ -495,15 +599,15 @@
                 title: values.title.trim(),
                 message: values.message.trim()
             };
-            render(form.dataset.editingId
+            const nextState = form.dataset.editingId
                 ? dataStore.updateAnnouncement(defaultVehicles, form.dataset.editingId, announcement)
-                : dataStore.addAnnouncement(defaultVehicles, announcement));
+                : dataStore.addAnnouncement(defaultVehicles, announcement);
+            await saveDashboardState(nextState, 'Announcement saved to the shared website.');
             form.reset();
             delete form.dataset.editingId;
             document.getElementById('announcementFormTitle').textContent = 'Publish an announcement';
             document.getElementById('announcementSubmitButton').textContent = 'Publish announcement';
             document.getElementById('cancelAnnouncementEdit').hidden = true;
-            setMessage('Announcement saved on this browser’s homepage.');
         } catch (error) {
             showError(error);
         }
@@ -670,11 +774,13 @@
             };
             if (!category.image) throw new Error('Choose a picture for this category.');
             const editingId = categoryForm.dataset.editingId;
-            render(editingId
+            const nextState = editingId
                 ? dataStore.updateCategory(defaultVehicles, editingId, category)
-                : dataStore.addCategory(defaultVehicles, category));
+                : dataStore.addCategory(defaultVehicles, category);
+            await saveDashboardState(nextState, editingId
+                ? 'Homepage category updated on the shared website.'
+                : 'Homepage category added to the shared website.');
             closeCategoryForm();
-            setMessage(editingId ? 'Homepage category updated.' : 'Homepage category added.');
         } catch (error) {
             showError(error);
         }
@@ -813,11 +919,13 @@
                 credit,
                 creditUrl
             };
-            render(editingId
+            const nextState = editingId
                 ? dataStore.updateHomeTile(defaultVehicles, editingId, tile)
-                : dataStore.addHomeTile(defaultVehicles, tile));
+                : dataStore.addHomeTile(defaultVehicles, tile);
+            await saveDashboardState(nextState, editingId
+                ? 'Homepage tile updated on the shared website.'
+                : 'Homepage tile added to the shared website.');
             resetHomeTileForm();
-            setMessage(editingId ? 'Homepage tile updated.' : 'Homepage tile added.');
         } catch (error) {
             showError(error);
         } finally {
@@ -884,7 +992,7 @@
             input.dataset.siteImageFile = image.key;
             const note = document.createElement('span');
             note.className = 'admin-field-note';
-            note.textContent = 'Optional. Choose a JPG, PNG or WebP image up to 5 MB. It will be optimized and saved in this browser.';
+            note.textContent = 'Optional. Choose a JPG, PNG or WebP image up to 5 MB. It will be optimized and saved to the shared website.';
             label.append(input, note);
             siteContentImages.append(label);
 
@@ -925,36 +1033,36 @@
             siteContentImages.querySelectorAll('[data-site-image-reset]:checked').forEach(input => {
                 images[input.dataset.siteImageReset] = '';
             });
-            render(dataStore.updateSiteContent(defaultVehicles, {
+            const nextState = dataStore.updateSiteContent(defaultVehicles, {
                 text,
                 images,
                 hiddenSections,
                 sectionKeys: pageSections.map(section => section.key)
-            }, page));
+            }, page);
+            await saveDashboardState(nextState, `${siteContent.pages.find(item => item.id === page).label} content saved to the shared website.`);
             renderSiteContentForm();
-            setMessage(`${siteContent.pages.find(item => item.id === page).label} content saved.`);
         } catch (error) {
             showError(error);
         } finally {
             submitButton.disabled = false;
         }
     });
-    document.getElementById('siteContentReset').addEventListener('click', () => {
+    document.getElementById('siteContentReset').addEventListener('click', async () => {
         const page = siteContentPage.value;
         if (!window.confirm(`Restore the original copy, banner image, and visible sections for ${siteContent.pages.find(item => item.id === page).label}?`)) return;
         try {
             const pageFields = siteContent.fields.filter(field => field.page === page);
             const pageImages = siteContent.images.filter(image => image.page === page);
             const pageSections = siteContent.sections.filter(section => section.page === page);
-            render(dataStore.resetSiteContent(
+            const nextState = dataStore.resetSiteContent(
                 defaultVehicles,
                 page,
                 pageFields.map(field => field.key),
                 pageImages.map(image => image.key),
                 pageSections.map(section => section.key)
-            ));
+            );
+            await saveDashboardState(nextState, `${siteContent.pages.find(item => item.id === page).label} restored and saved to the shared website.`);
             renderSiteContentForm();
-            setMessage(`${siteContent.pages.find(item => item.id === page).label} restored to its original content.`);
         } catch (error) {
             showError(error);
         }
@@ -965,18 +1073,13 @@
         if (event.key !== dataStore.storageKey) return;
         try {
             render();
-            setMessage('Dashboard updated with changes from another Zackconnect tab in this browser.');
+            setMessage('Dashboard cache updated.');
         } catch (error) {
             showError(error);
         }
     });
 
-    try {
-        render();
-    } catch (error) {
-        showError(error);
-    }
-    loadAdminVehicles().catch(showError);
+    loadDashboardData().catch(showError);
     document.getElementById('adminLogout').addEventListener('click', () => {
         localStorage.removeItem('authToken');
         localStorage.removeItem('userInfo');

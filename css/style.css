@@ -2994,6 +2994,23 @@ button.admin-store-link {
     background: #fff;
 }
 
+.home-inventory {
+    padding: 24px 0 40px;
+    background: #fff;
+}
+
+.home-inventory-heading {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    margin-bottom: 20px;
+}
+
+.home-inventory-heading .section-title {
+    margin: 0;
+}
+
 .home-vehicle-pages {
     padding: 8px 0 48px;
     background: #fff;

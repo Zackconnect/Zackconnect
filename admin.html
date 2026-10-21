@@ -22,7 +22,7 @@
     </header>
 
     <div class="admin-prototype-warning" role="note">
-        <strong>Inventory:</strong> Vehicle listings are stored in the shared database. Other dashboard settings and submissions remain in this browser’s local storage.
+        <strong>Shared database:</strong> Vehicle listings, website settings, announcements, import requests, and enquiries are saved for all visitors and admins.
     </div>
 
     <main class="admin-layout">
@@ -46,7 +46,7 @@
                     <div>
                         <p class="admin-eyebrow">ZACKCONNECT CONTROL PANEL</p>
                         <h1>Overview</h1>
-                        <p>Review this browser’s listings, customer submissions, and recent changes.</p>
+                        <p>Review shared vehicle listings, customer submissions, and recent changes.</p>
                     </div>
                 </div>
                 <div class="admin-stat-grid">
@@ -117,12 +117,12 @@
             </section>
 
             <section class="admin-panel" id="panel-requests" hidden>
-                <div class="admin-page-heading"><div><p class="admin-eyebrow">CUSTOMER ACTIVITY</p><h1>Import requests</h1><p>Import forms submitted from this browser appear here.</p></div></div>
+                <div class="admin-page-heading"><div><p class="admin-eyebrow">CUSTOMER ACTIVITY</p><h1>Import requests</h1><p>Import forms submitted through the website appear here.</p></div></div>
                 <div class="admin-card"><div class="admin-card-heading"><h2>Submitted requests</h2></div><div id="requestList" class="admin-record-list"></div></div>
             </section>
 
             <section class="admin-panel" id="panel-enquiries" hidden>
-                <div class="admin-page-heading"><div><p class="admin-eyebrow">CUSTOMER ACTIVITY</p><h1>Enquiries</h1><p>Contact form submissions stored locally in this browser.</p></div></div>
+                <div class="admin-page-heading"><div><p class="admin-eyebrow">CUSTOMER ACTIVITY</p><h1>Enquiries</h1><p>Contact form submissions saved in the shared database.</p></div></div>
                 <div class="admin-card"><div class="admin-card-heading"><h2>Submitted enquiries</h2></div><div id="enquiryList" class="admin-record-list"></div></div>
             </section>
 
@@ -135,7 +135,7 @@
                     <div class="admin-card-heading"><h2 id="categoryFormTitle">New homepage category</h2></div>
                     <div class="admin-form-grid">
                         <label>Category name <input name="label" type="text" maxlength="40" required placeholder="e.g. Electric cars"></label>
-                        <label class="admin-form-wide">Category picture <input id="categoryImageInput" name="picture" type="file" accept="image/jpeg,image/png,image/webp" required><span class="admin-field-note">Choose a JPG, PNG or WebP image up to 5 MB. Pictures are shown without cropping and stored in this browser.</span></label>
+                        <label class="admin-form-wide">Category picture <input id="categoryImageInput" name="picture" type="file" accept="image/jpeg,image/png,image/webp" required><span class="admin-field-note">Choose a JPG, PNG or WebP image up to 5 MB. Pictures are shown without cropping and saved to the shared website.</span></label>
                         <div class="admin-category-image-preview"><img id="categoryImagePreview" alt="Category picture preview" hidden><span id="categoryImagePlaceholder">Your picture preview will appear here</span></div>
                         <label>Destination
                             <select name="page" required><option value="cars.html">Cars</option><option value="tricycles.html">Tricycles</option><option value="import.html">Import</option><option value="contact.html">Contact</option></select>
@@ -177,7 +177,7 @@
             </section>
 
             <section class="admin-panel" id="panel-announcements" hidden>
-                <div class="admin-page-heading"><div><p class="admin-eyebrow">SITE CONTENT</p><h1>Announcements</h1><p>Publish and remove messages shown on the public homepage in this browser.</p></div></div>
+                <div class="admin-page-heading"><div><p class="admin-eyebrow">SITE CONTENT</p><h1>Announcements</h1><p>Publish and remove messages shown on the public homepage.</p></div></div>
                 <form class="admin-card admin-form" id="announcementForm">
                     <div class="admin-card-heading"><h2 id="announcementFormTitle">Publish an announcement</h2></div>
                     <div class="admin-form-grid">
@@ -208,7 +208,7 @@
             </section>
 
             <section class="admin-card admin-activity-full">
-                <div class="admin-card-heading"><h2>Activity log</h2><p>Records changes made using this dashboard and form submissions in this browser.</p></div>
+                <div class="admin-card-heading"><h2>Activity log</h2><p>Records changes made using this dashboard.</p></div>
                 <div id="activityList" class="admin-activity-list"></div>
             </section>
         </section>
