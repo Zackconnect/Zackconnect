@@ -188,7 +188,7 @@ const AuthAPI = {
     },
 
     async signup(userData) {
-        return await apiRequest('/auth/signup', {
+        return await apiRequest('/auth/register', {
             method: 'POST',
             body: JSON.stringify(userData)
         });
