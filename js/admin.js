@@ -24,6 +24,7 @@
     const recoverLocalCarsButton = document.getElementById('recoverLocalCars');
     let vehicleImagePreviewUrls = [];
     let selectedVehicleImages = [];
+    let existingVehicleImages = [];
 
     function getState() {
         return {
@@ -553,6 +554,7 @@
         vehicleForm.reset();
         clearVehicleImagePreview();
         selectedVehicleImages = [];
+        existingVehicleImages = [];
         vehicleImageInput.required = true;
         vehicleForm.elements.listingType.value = 'arrived';
         syncVehicleListingFields();
@@ -598,7 +600,8 @@
         vehicleForm.elements.featured.checked = Boolean(vehicle.featured);
         vehicleForm.elements.description.value = vehicle.description || '';
         vehicleImageInput.required = false;
-        setVehicleImagePreview(vehicle.images?.length ? vehicle.images : vehicle.image);
+        existingVehicleImages = vehicle.images?.length ? [...vehicle.images] : vehicle.image ? [vehicle.image] : [];
+        setVehicleImagePreview(existingVehicleImages);
         vehicleForm.hidden = false;
         vehicleForm.elements.make.focus();
         vehicleForm.scrollIntoView({ behavior: 'smooth', block: 'start' });
@@ -646,15 +649,15 @@
         const additions = newFiles.filter(file => !selectedVehicleImages.some(existing =>
             existing.name === file.name && existing.size === file.size && existing.lastModified === file.lastModified
         ));
-        if (selectedVehicleImages.length + additions.length > 10) {
-            setMessage('Choose no more than 10 photos for one vehicle listing.');
+        if (existingVehicleImages.length + selectedVehicleImages.length + additions.length > 10) {
+            setMessage('Choose no more than 10 photos for one vehicle listing, including its current photos.');
             vehicleImageInput.value = '';
             return;
         }
         selectedVehicleImages.push(...additions);
         clearVehicleImagePreview();
         vehicleImagePreviewUrls = selectedVehicleImages.map(file => URL.createObjectURL(file));
-        setVehicleImagePreview(vehicleImagePreviewUrls);
+        setVehicleImagePreview([...existingVehicleImages, ...vehicleImagePreviewUrls]);
         if (selectedVehicleImages.length) vehicleImageInput.required = false;
         vehicleImageInput.value = '';
     });
@@ -677,9 +680,11 @@
                 : undefined;
             if (editingId && !existingVehicle) throw new Error('That vehicle could not be found.');
             const uploadedImages = selectedVehicleImages;
-            if (uploadedImages.length > 10) throw new Error('Choose no more than 10 photos for one vehicle listing.');
+            if (existingVehicleImages.length + uploadedImages.length > 10) {
+                throw new Error('Choose no more than 10 photos for one vehicle listing, including its current photos.');
+            }
             const images = uploadedImages.length
-                ? await Promise.all(uploadedImages.map(file => optimizeUploadedImage(file, 'vehicle photo')))
+                ? [...existingVehicleImages, ...await Promise.all(uploadedImages.map(file => optimizeUploadedImage(file, 'vehicle photo')))]
                 : existingVehicle?.images?.length
                     ? existingVehicle.images
                     : existingVehicle?.image ? [existingVehicle.image] : [];
