@@ -22,7 +22,7 @@
     const vehicleImagePreview = document.getElementById('vehicleImagePreview');
     const vehicleImagePlaceholder = document.getElementById('vehicleImagePlaceholder');
     const vehicleImageCount = document.getElementById('vehicleImageCount');
-    const recoverLocalCarsButton = document.getElementById('recoverLocalCars');
+    const recoverLocalVehiclesButton = document.getElementById('recoverLocalVehicles');
     let vehicleImagePreviewUrls = [];
     let selectedVehicleImages = [];
     let existingVehicleImages = [];
@@ -129,7 +129,7 @@
         renderSiteContentForm();
         render();
         await inventoryLoad;
-        updateLocalCarRecoveryButton();
+        updateLocalVehicleRecoveryButton();
         if (settingsSaveError) showError(settingsSaveError);
     }
 
@@ -423,20 +423,25 @@
     async function loadAdminVehicles() {
         serverVehicles = await vehiclesApi.getAdminAll();
         render();
-        updateLocalCarRecoveryButton();
+        updateLocalVehicleRecoveryButton();
     }
 
     function vehicleRecoveryKey(vehicle) {
         return [
+            vehicle.category === 'bajaj' ? 'bajaj' : 'car',
             String(vehicle.make || '').trim().toLowerCase(),
             String(vehicle.model || '').trim().toLowerCase(),
             String(vehicle.year || ''),
             String(vehicle.price || ''),
-            vehicle.listingType === 'import' ? 'import' : 'arrived'
+            String(vehicle.condition || '').trim().toLowerCase(),
+            vehicle.category === 'bajaj'
+                ? String(vehicle.bajajType || 'passenger').trim().toLowerCase()
+                : vehicle.listingType === 'import' ? 'import' : 'arrived',
+            String(vehicle.location || '').trim().toLowerCase()
         ].join('|');
     }
 
-    function getRecoverableLocalCars() {
+    function getRecoverableLocalVehicles() {
         const savedState = localStorage.getItem(dataStore.storageKey);
         if (!savedState) return [];
 
@@ -452,98 +457,101 @@
         }
 
         return state.vehicles.filter(vehicle =>
-            vehicle.category === 'car' && vehicle.availability !== 'sold' && vehicle.availability !== 'reserved'
+            ['car', 'bajaj'].includes(vehicle.category) &&
+            vehicle.availability !== 'sold' &&
+            vehicle.availability !== 'reserved'
         );
     }
 
-    function updateLocalCarRecoveryButton() {
-        if (!recoverLocalCarsButton) return;
+    function updateLocalVehicleRecoveryButton() {
+        if (!recoverLocalVehiclesButton) return;
         try {
-            const serverCars = new Set(serverVehicles.map(vehicleRecoveryKey));
-            recoverLocalCarsButton.hidden = !getRecoverableLocalCars().some(car =>
-                !serverCars.has(vehicleRecoveryKey(car))
+            const serverVehiclesByKey = new Set(serverVehicles.map(vehicleRecoveryKey));
+            recoverLocalVehiclesButton.hidden = !getRecoverableLocalVehicles().some(vehicle =>
+                !serverVehiclesByKey.has(vehicleRecoveryKey(vehicle))
             );
         } catch (error) {
-            recoverLocalCarsButton.hidden = true;
+            recoverLocalVehiclesButton.hidden = true;
             showError(error);
         }
     }
 
-    if (recoverLocalCarsButton) {
-        recoverLocalCarsButton.addEventListener('click', async () => {
-            let localCars;
+    if (recoverLocalVehiclesButton) {
+        recoverLocalVehiclesButton.addEventListener('click', async () => {
+            let localVehicles;
             try {
-                localCars = getRecoverableLocalCars();
+                localVehicles = getRecoverableLocalVehicles();
             } catch (error) {
                 showError(error);
                 return;
             }
 
-            if (!localCars.length) {
-                recoverLocalCarsButton.hidden = true;
-                setMessage('No saved browser car listings were found. Add a vehicle here to publish it.');
+            if (!localVehicles.length) {
+                recoverLocalVehiclesButton.hidden = true;
+                setMessage('No saved browser vehicle listings were found. Add a vehicle here to publish it.');
                 return;
             }
 
-            const knownCars = new Set(serverVehicles.map(vehicleRecoveryKey));
-            const newCars = localCars.filter(localCar => {
-                const key = vehicleRecoveryKey(localCar);
-                if (knownCars.has(key)) return false;
-                knownCars.add(key);
+            const knownVehicles = new Set(serverVehicles.map(vehicleRecoveryKey));
+            const newVehicles = localVehicles.filter(localVehicle => {
+                const key = vehicleRecoveryKey(localVehicle);
+                if (knownVehicles.has(key)) return false;
+                knownVehicles.add(key);
                 return true;
             });
-            if (!newCars.length) {
-                recoverLocalCarsButton.hidden = true;
-                setMessage('All saved browser car listings are already in the shared database.');
+            if (!newVehicles.length) {
+                recoverLocalVehiclesButton.hidden = true;
+                setMessage('All saved browser vehicle listings are already in the shared database.');
                 return;
             }
 
-            if (!window.confirm(`Recover ${newCars.length} saved car listing${newCars.length === 1 ? '' : 's'} into the shared database so they appear for all visitors?`)) {
+            if (!window.confirm(`Recover ${newVehicles.length} saved vehicle listing${newVehicles.length === 1 ? '' : 's'} into the shared database so they appear for all visitors?`)) {
                 return;
             }
 
-            recoverLocalCarsButton.disabled = true;
+            recoverLocalVehiclesButton.disabled = true;
             let recovered = 0;
             const failures = [];
             try {
-                for (const car of newCars) {
-                    const images = Array.isArray(car.images) && car.images.length
-                        ? car.images.slice(0, 10)
-                        : car.image ? [car.image] : [];
-                    if (!car.make || !car.model || !Number(car.year) || !Number(car.price)) {
-                        failures.push(`${car.title || 'A saved car'} is missing its make, model, year, or price`);
+                for (const vehicle of newVehicles) {
+                    const images = Array.isArray(vehicle.images) && vehicle.images.length
+                        ? vehicle.images.slice(0, 10)
+                        : vehicle.image ? [vehicle.image] : [];
+                    const vehicleName = vehicle.title || `${vehicle.make || 'Vehicle'} ${vehicle.model || ''}`;
+                    if (!vehicle.make || !vehicle.model || !Number(vehicle.year) || !Number(vehicle.price)) {
+                        failures.push(`${vehicleName} is missing its make, model, year, or price`);
                         continue;
                     }
                     if (!images.length) {
-                        failures.push(`${car.title || `${car.make} ${car.model}`} has no photo`);
+                        failures.push(`${vehicleName} has no photo`);
                         continue;
                     }
 
                     try {
                         await vehiclesApi.saveAdmin({
-                            ...car,
-                            category: 'car',
+                            ...vehicle,
+                            category: vehicle.category === 'bajaj' ? 'bajaj' : 'car',
                             images,
-                            listingType: car.listingType === 'import' ? 'import' : 'arrived',
+                            listingType: vehicle.category === 'car' && vehicle.listingType === 'import' ? 'import' : 'arrived',
                             availability: 'available'
                         });
                         recovered += 1;
                     } catch (error) {
-                        failures.push(`${car.title || `${car.make} ${car.model}`}: ${error.message}`);
+                        failures.push(`${vehicleName}: ${error.message}`);
                     }
                 }
 
                 await loadAdminVehicles();
-                updateLocalCarRecoveryButton();
+                updateLocalVehicleRecoveryButton();
                 if (failures.length) {
-                    showError(new Error(`Recovered ${recovered} car${recovered === 1 ? '' : 's'}. Could not recover ${failures.join('; ')}.`));
+                    showError(new Error(`Recovered ${recovered} vehicle${recovered === 1 ? '' : 's'}. Could not recover ${failures.join('; ')}.`));
                 } else {
-                    setMessage(`Recovered ${recovered} saved car listing${recovered === 1 ? '' : 's'} to the shared database.`);
+                    setMessage(`Recovered ${recovered} saved vehicle listing${recovered === 1 ? '' : 's'} to the shared database.`);
                 }
             } catch (error) {
                 showError(error);
             } finally {
-                recoverLocalCarsButton.disabled = false;
+                recoverLocalVehiclesButton.disabled = false;
             }
         });
     }
