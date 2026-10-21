@@ -762,9 +762,13 @@ function renderTricyclesListings(vehiclesToRender) {
 function initVehicleDetailsPage() {
     const urlParams = new URLSearchParams(window.location.search);
     const vehicleId = urlParams.get('id');
-    
+    const vehicleCategory = urlParams.get('type');
+
     if (vehicleId) {
-        const vehicle = vehicles.find(v => String(v.id) === vehicleId);
+        const vehicle = vehicles.find(v =>
+            String(v.id) === vehicleId &&
+            (!vehicleCategory || v.category === vehicleCategory)
+        );
         if (vehicle) {
             renderVehicleDetailsPage(vehicle);
         } else {
@@ -858,6 +862,14 @@ function renderVehicleDetailsPage(vehicle) {
                     </svg>
                     <span>Year: ${vehicle.year}</span>
                 </div>
+                ${vehicle.category === 'bajaj' ? `<div class="spec-item">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="5" cy="17" r="3"/>
+                        <circle cx="19" cy="17" r="3"/>
+                        <path d="M5 17h5l3-7h4l2 7M10 17l-2-6h5"/>
+                    </svg>
+                    <span>Type: ${vehicle.bajajType === 'cargo' ? 'Cargo tricycle' : 'Passenger tricycle'}</span>
+                </div>` : ''}
                 ${isImportListing && sourceCountryLabel ? `<div class="spec-item">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                         <circle cx="12" cy="12" r="10"/>
@@ -933,6 +945,11 @@ function renderVehicleDetailsPage(vehicle) {
             
             vehicleDetailsContent.querySelectorAll('.gallery-thumbnail').forEach(t => t.classList.remove('active'));
             this.classList.add('active');
+        });
+    });
+    vehicleDetailsContent.querySelectorAll('.view-details').forEach(button => {
+        button.addEventListener('click', () => {
+            window.location.href = `vehicle-details.html?id=${encodeURIComponent(button.dataset.id)}&type=${encodeURIComponent(vehicle.category)}`;
         });
     });
 }
@@ -1105,7 +1122,7 @@ function createVehicleCard(vehicle) {
                 <span class="vehicle-seller">Zackconnect Autos</span>
             </div>
             <div class="vehicle-actions">
-                <button class="btn btn-outline view-details" data-id="${vehicle.id}">View Details</button>
+                <button class="btn btn-outline view-details" data-id="${vehicle.id}" data-category="${vehicle.category}">View Details</button>
             </div>
         </div>
     `;
@@ -1127,7 +1144,7 @@ function createVehicleCard(vehicle) {
     // Add event listener for view details
     const viewDetailsBtn = card.querySelector('.view-details');
     viewDetailsBtn.addEventListener('click', () => {
-        window.location.href = `vehicle-details.html?id=${encodeURIComponent(vehicle.id)}`;
+        window.location.href = `vehicle-details.html?id=${encodeURIComponent(vehicle.id)}&type=${encodeURIComponent(vehicle.category)}`;
     });
 
     return card;
