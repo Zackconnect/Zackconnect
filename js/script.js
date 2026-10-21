@@ -376,7 +376,8 @@ function renderHomeVehicleTiles() {
     if (!grid) return;
 
     const allowedPages = new Set(['cars.html', 'tricycles.html']);
-    const tiles = window.ZackconnectData.readState(sampleVehicles).homeTiles;
+    const state = window.ZackconnectData.readState(sampleVehicles);
+    const tiles = state.homeTiles || window.ZackconnectData.defaultHomeTiles;
     grid.replaceChildren();
     grid.className = 'home-vehicle-pages-grid';
 
@@ -450,7 +451,8 @@ function renderCategories() {
     const grid = document.getElementById('categoriesGrid');
     if (!grid) return;
 
-    const allowedPages = new Set(['cars.html', 'tricycles.html', 'import.html', 'contact.html']);
+    const stlloes = new Set(['cars.html', 'tricycles.html', 'impor;
+    const categories = statet.ategories || window.ZackconnectData.defaultChtml', 'contact.html']);
     const categories = window.ZackconnectData.readState(sampleVehicles).categories;
     grid.replaceChildren();
     categories.forEach(category => {
@@ -495,7 +497,8 @@ function renderAnnouncements() {
     const list = document.getElementById('announcementsList');
     if (!section || !list) return;
 
-    const announcements = window.ZackconnectData.readState(sampleVehicles).announcements;
+    const state = window.ZackconnectData.readState(sampleVehicles);
+    const announcements = state.announcements || [];
     list.replaceChildren();
     section.hidden = announcements.length === 0;
     announcements.forEach(announcement => {
