@@ -81,6 +81,8 @@
             <div class="tricycle-categories">
                 <div class="category-tabs">
                     <button class="category-tab active" data-type="all">All Tricycles</button>
+                    <button class="category-tab" data-type="passenger">Passenger</button>
+                    <button class="category-tab" data-type="cargo">Cargo</button>
                     <button class="category-tab" data-type="new">New</button>
                     <button class="category-tab" data-type="used">Used</button>
                 </div>
@@ -97,9 +99,10 @@
                     <circle cx="40" cy="40" r="35" stroke="#E31837" stroke-width="2"/>
                     <path d="M25 40h30M40 25v30" stroke="#E31837" stroke-width="2" stroke-linecap="round"/>
                 </svg>
-                <h3>No tricycles found</h3>
-                <p>Try adjusting your filters</p>
+                <h3 id="tricyclesEmptyTitle">No tricycles are currently available</h3>
+                <p id="tricyclesEmptyMessage">Contact Zackconnect Autos to ask about upcoming availability.</p>
                 <button id="resetSearch" class="btn btn-primary">Reset Search</button>
+                <a id="tricyclesEmptyContact" class="btn btn-primary" href="contact.html" hidden>Contact Us</a>
             </div>
 
         </div>

@@ -706,10 +706,12 @@ function initTricyclesPage() {
     if (filterCondition && params.has('condition')) filterCondition.value = params.get('condition');
     if (filterLocation && params.has('location')) filterLocation.value = params.get('location');
 
-    const bajajVehicles = vehicles.filter(v => v.category === 'bajaj');
-    renderTricyclesListings(bajajVehicles);
-    refreshInventory = initTricyclesFilters();
-    initTricyclesTabs();
+    const initialTabType = params.get('type') || params.get('condition') || 'all';
+    const applyFilters = initTricyclesFilters(initialTabType);
+    refreshInventory = applyFilters;
+    initTricyclesTabs(applyFilters, initialTabType);
+    const sortListings = document.getElementById('sortListings');
+    if (sortListings) sortListings.addEventListener('change', applyFilters);
 }
 
 function renderTricyclesListings(vehiclesToRender) {
@@ -719,10 +721,29 @@ function renderTricyclesListings(vehiclesToRender) {
     if (vehiclesToRender.length === 0) {
         if (emptyState) emptyState.style.display = 'block';
         if (listingCount) listingCount.textContent = 'Showing 0 tricycles';
+        const hasAvailableTricycles = vehicles.some(vehicle =>
+            vehicle.category === 'bajaj' && vehicle.availability === 'available'
+        );
+        const emptyTitle = document.getElementById('tricyclesEmptyTitle');
+        const emptyMessage = document.getElementById('tricyclesEmptyMessage');
+        const resetButton = document.getElementById('resetSearch');
+        const contactLink = document.getElementById('tricyclesEmptyContact');
+        if (emptyTitle) emptyTitle.textContent = hasAvailableTricycles
+            ? 'No tricycles match this selection'
+            : 'No tricycles are currently available';
+        if (emptyMessage) emptyMessage.textContent = hasAvailableTricycles
+            ? 'Try another tricycle type or condition.'
+            : 'Contact Zackconnect Autos to ask about upcoming availability.';
+        if (resetButton) resetButton.hidden = !hasAvailableTricycles;
+        if (contactLink) contactLink.hidden = hasAvailableTricycles;
         return;
     }
 
     if (emptyState) emptyState.style.display = 'none';
+    const resetButton = document.getElementById('resetSearch');
+    const contactLink = document.getElementById('tricyclesEmptyContact');
+    if (resetButton) resetButton.hidden = false;
+    if (contactLink) contactLink.hidden = true;
     if (listingCount) listingCount.textContent = `Showing ${vehiclesToRender.length} tricycle${vehiclesToRender.length !== 1 ? 's' : ''}`;
 
     vehiclesToRender.forEach(vehicle => {
@@ -1234,13 +1255,15 @@ function initCarsSorting(applyFilters) {
 }
 
 // Initialize Tricycles Filters
-function initTricyclesFilters() {
+function initTricyclesFilters(initialTabType = 'all') {
     const filterBajajType = document.getElementById('filterBajajType');
     const filterCondition = document.getElementById('filterCondition');
     const filterPriceRange = document.getElementById('filterPriceRange');
     const filterLocation = document.getElementById('filterLocation');
     const clearFilters = document.getElementById('clearFilters');
     const resetSearch = document.getElementById('resetSearch');
+    const sortListings = document.getElementById('sortListings');
+    let activeTabType = initialTabType;
 
     const filters = [filterBajajType, filterCondition, filterPriceRange, filterLocation];
 
@@ -1253,6 +1276,10 @@ function initTricyclesFilters() {
     if (clearFilters) {
         clearFilters.addEventListener('click', () => {
             filters.forEach(f => { if (f) f.value = ''; });
+            activeTabType = 'all';
+            document.querySelectorAll('.category-tab').forEach(tab => {
+                tab.classList.toggle('active', tab.dataset.type === 'all');
+            });
             applyTricyclesFilters();
         });
     }
@@ -1260,21 +1287,37 @@ function initTricyclesFilters() {
     if (resetSearch) {
         resetSearch.addEventListener('click', () => {
             filters.forEach(f => { if (f) f.value = ''; });
+            activeTabType = 'all';
+            document.querySelectorAll('.category-tab').forEach(tab => {
+                tab.classList.toggle('active', tab.dataset.type === 'all');
+            });
             applyTricyclesFilters();
         });
     }
 
-    function applyTricyclesFilters() {
-        let bajajVehicles = vehicles.filter(v => v.category === 'bajaj');
+    function applyTricyclesFilters(tabType) {
+        if (typeof tabType === 'string') activeTabType = tabType;
+        let bajajVehicles = vehicles.filter(v =>
+            v.category === 'bajaj' && v.availability === 'available'
+        );
         
+        if (activeTabType === 'new' || activeTabType === 'used') {
+            bajajVehicles = bajajVehicles.filter(v => v.condition === activeTabType);
+        } else if (activeTabType !== 'all') {
+            bajajVehicles = bajajVehicles.filter(v => v.bajajType === activeTabType);
+        }
         if (filterBajajType && filterBajajType.value) bajajVehicles = bajajVehicles.filter(v => v.bajajType === filterBajajType.value);
         if (filterCondition && filterCondition.value) bajajVehicles = bajajVehicles.filter(v => v.condition === filterCondition.value);
         if (filterLocation && filterLocation.value) bajajVehicles = bajajVehicles.filter(v => v.location === filterLocation.value);
         
         if (filterPriceRange && filterPriceRange.value) {
-            const [min, max] = filterPriceRange.value.split('-').map(v => v === '+' ? Infinity : parseInt(v));
+            const [min, max] = filterPriceRange.value.split('-').map(v => v === '+' ? Infinity : Number.parseInt(v, 10));
             bajajVehicles = bajajVehicles.filter(v => v.price >= min && v.price <= max);
         }
+
+        if (sortListings?.value === 'price-low') bajajVehicles.sort((a, b) => a.price - b.price);
+        else if (sortListings?.value === 'price-high') bajajVehicles.sort((a, b) => b.price - a.price);
+        else bajajVehicles.sort((a, b) => new Date(b.datePosted) - new Date(a.datePosted));
         
         renderTricyclesListings(bajajVehicles);
     }
@@ -1284,24 +1327,18 @@ function initTricyclesFilters() {
 }
 
 // Initialize Tricycles Tabs
-function initTricyclesTabs() {
+function initTricyclesTabs(applyFilters, initialTabType = 'all') {
     const categoryTabs = document.querySelectorAll('.category-tab');
     categoryTabs.forEach(tab => {
+        tab.classList.toggle('active', tab.dataset.type === initialTabType);
+    });
+
+    categoryTabs.forEach(tab => {
         tab.addEventListener('click', () => {
-            const type = tab.dataset.type;
-            let bajajVehicles = vehicles.filter(v => v.category === 'bajaj');
-            
-            if (type !== 'all') {
-                if (type === 'new' || type === 'used') {
-                    bajajVehicles = bajajVehicles.filter(v => v.condition === type);
-                } else {
-                    bajajVehicles = bajajVehicles.filter(v => v.bajajType === type);
-                }
-            }
-            
+            const type = tab.dataset.type || 'all';
             categoryTabs.forEach(t => t.classList.remove('active'));
             tab.classList.add('active');
-            renderTricyclesListings(bajajVehicles);
+            applyFilters(type);
         });
     });
 }
