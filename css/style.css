@@ -2256,48 +2256,149 @@ section {
 
 /* Contact Section */
 .contact-section {
-    background-color: white;
+    padding: 56px 0 72px;
+    background:
+        radial-gradient(ellipse at 8% 0%, rgba(227, 24, 55, 0.055), transparent 34%),
+        linear-gradient(180deg, #fff 0%, #fffafb 100%);
 }
 
 .contact-content {
     display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 48px;
+    grid-template-columns: minmax(0, 0.9fr) minmax(380px, 1.1fr);
+    align-items: start;
+    gap: clamp(28px, 5vw, 64px);
 }
 
 .contact-info {
     display: flex;
     flex-direction: column;
-    gap: 24px;
+    gap: 14px;
+    min-width: 0;
+}
+
+.contact-info > h2 {
+    margin: 0 0 2px;
+    color: var(--secondary-color);
+    font-size: clamp(30px, 3.5vw, 42px);
+    font-weight: 750;
+    letter-spacing: -0.04em;
+}
+
+.contact-info > p {
+    margin: 0 0 12px;
+    color: var(--text-light);
+    font-size: 16px;
+    line-height: 1.7;
 }
 
 .contact-item {
     display: flex;
-    gap: 16px;
-    align-items: flex-start;
+    gap: 15px;
+    align-items: center;
+    min-height: 78px;
+    padding: 14px 16px;
+    border: 1px solid rgba(26, 26, 26, 0.06);
+    border-radius: 15px;
+    background: rgba(255, 255, 255, 0.88);
+    box-shadow: 0 6px 18px rgba(26, 26, 26, 0.035);
+    transition: transform 200ms ease, border-color 200ms ease, box-shadow 200ms ease;
+}
+
+.contact-item:hover {
+    transform: translateY(-2px);
+    border-color: rgba(227, 24, 55, 0.18);
+    box-shadow: 0 10px 24px rgba(26, 26, 26, 0.075);
 }
 
 .contact-item svg {
     flex-shrink: 0;
-    margin-top: 4px;
+    display: grid;
+    width: 42px;
+    height: 42px;
+    margin: 0;
+    padding: 9px;
+    border-radius: 12px;
+    background: #fff0f2;
 }
 
 .contact-item h4 {
-    font-size: 16px;
-    font-weight: 600;
-    margin-bottom: 4px;
+    margin: 0 0 3px;
     color: var(--secondary-color);
+    font-size: 15px;
+    font-weight: 700;
 }
 
 .contact-item p {
-    font-size: 14px;
+    margin: 0;
     color: var(--text-light);
+    font-size: 14px;
+    line-height: 1.55;
+}
+
+.contact-item a:hover {
+    color: var(--primary-color);
+}
+
+.contact-form {
+    padding: clamp(24px, 3vw, 36px);
+    border: 1px solid rgba(26, 26, 26, 0.07);
+    border-radius: 22px;
+    background: #fff;
+    box-shadow: 0 18px 48px rgba(26, 26, 26, 0.085);
 }
 
 .contact-form h3 {
-    font-size: 24px;
-    margin-bottom: 24px;
+    margin: 0 0 24px;
     color: var(--secondary-color);
+    font-size: clamp(23px, 2.4vw, 29px);
+    font-weight: 750;
+    letter-spacing: -0.035em;
+}
+
+.contact-form .form-group {
+    margin-bottom: 17px;
+}
+
+.contact-form .form-group label {
+    margin-bottom: 7px;
+    font-size: 13px;
+    font-weight: 650;
+}
+
+.contact-form .form-group input,
+.contact-form .form-group select,
+.contact-form .form-group textarea {
+    min-height: 46px;
+    padding: 11px 13px;
+    border-radius: 11px;
+    background: #fff;
+    font-size: 14px;
+}
+
+.contact-form .form-group textarea {
+    min-height: 120px;
+}
+
+.contact-form .btn-full {
+    min-height: 50px;
+    border-radius: 12px;
+    font-weight: 700;
+    box-shadow: 0 8px 18px rgba(227, 24, 55, 0.16);
+    transition: transform 180ms ease, box-shadow 180ms ease;
+}
+
+.contact-form .btn-full:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 12px 24px rgba(227, 24, 55, 0.24);
+}
+
+.contact-form .form-note {
+    margin-top: 14px;
+    padding: 12px 14px;
+    border: 1px solid rgba(26, 26, 26, 0.06);
+    background: #f8f9fa;
+    font-size: 12px;
+    line-height: 1.55;
 }
 
 /* Modal */
@@ -2676,6 +2777,32 @@ section {
         padding: 36px 0 52px;
     }
 
+    .contact-section {
+        padding: 36px 0 52px;
+    }
+
+    .contact-content {
+        gap: 28px;
+    }
+
+    .contact-info {
+        gap: 12px;
+    }
+
+    .contact-info > h2 {
+        font-size: clamp(30px, 8vw, 38px);
+    }
+
+    .contact-item {
+        min-height: 72px;
+        padding: 12px 14px;
+    }
+
+    .contact-form {
+        padding: 24px 20px;
+        border-radius: 18px;
+    }
+
     .import-content {
         gap: 28px;
     }
@@ -2973,6 +3100,8 @@ section {
     .about-grid .about-principle-card::after,
     .about-intro,
     .about-intro h2::after,
+    .contact-item,
+    .contact-form .btn-full,
     .import-steps,
     .cost-breakdown,
     .import-countries,
@@ -2994,6 +3123,8 @@ section {
     .about-grid .about-principle-card:hover,
     .about-grid .about-values-card:hover,
     .about-intro:hover,
+    .contact-item:hover,
+    .contact-form .btn-full:hover,
     .about-services .service-card:hover,
     .about-services .service-card:hover .service-icon {
         transform: none;
