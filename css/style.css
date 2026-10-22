@@ -192,6 +192,16 @@ button, input, select, textarea {
     font-weight: 900;
 }
 
+.home-quotation-icon .fa-circle-plus {
+    font-size: 27px;
+}
+
+.home-quotation-icon .fa-circle-plus::before {
+    content: "\f055";
+    font-family: "Font Awesome 6 Free";
+    font-weight: 900;
+}
+
 .feature-card:hover {
     transform: translateY(-5px);
     box-shadow: var(--shadow-hover);
