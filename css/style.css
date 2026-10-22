@@ -881,18 +881,22 @@ button, input, select, textarea {
 
 /* Header */
 .header {
-    background-color: white;
-    box-shadow: var(--shadow);
     position: sticky;
     top: 0;
     z-index: 1000;
+    border-bottom: 1px solid rgba(26, 26, 26, 0.06);
+    background: rgba(255, 255, 255, 0.96);
+    box-shadow: 0 8px 24px rgba(26, 26, 26, 0.055);
+    backdrop-filter: blur(14px);
 }
 
 .header-content {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 16px 0;
+    min-height: 82px;
+    gap: 28px;
+    padding: 12px 0;
 }
 
 .logo a {
@@ -915,18 +919,41 @@ button, input, select, textarea {
 /* Navigation */
 .nav {
     display: flex;
+    align-items: center;
 }
 
 .nav-list {
     display: flex;
-    gap: 32px;
+    align-items: center;
+    gap: clamp(18px, 2.6vw, 38px);
 }
 
 .nav-link {
-    font-weight: 500;
-    color: var(--text-color);
-    padding: 8px 0;
     position: relative;
+    display: inline-flex;
+    align-items: center;
+    min-height: 48px;
+    padding: 6px 0;
+    color: #3b3b3b;
+    font-size: 16px;
+    font-weight: 600;
+    letter-spacing: -0.015em;
+    white-space: nowrap;
+    transition: color 180ms ease;
+}
+
+.nav-link::after {
+    position: absolute;
+    right: 0;
+    bottom: 2px;
+    left: 0;
+    height: 3px;
+    border-radius: 3px;
+    background: var(--primary-color);
+    content: "";
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform 200ms ease;
 }
 
 .nav-link:hover,
@@ -934,14 +961,16 @@ button, input, select, textarea {
     color: var(--primary-color);
 }
 
+.nav-link:hover::after,
 .nav-link.active::after {
-    content: '';
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    width: 100%;
-    height: 2px;
-    background-color: var(--primary-color);
+    transform: scaleX(1);
+}
+
+.nav-link:focus-visible,
+.mobile-nav-link:focus-visible {
+    outline: 2px solid var(--primary-color);
+    outline-offset: 5px;
+    border-radius: 3px;
 }
 
 /* Header Actions */
@@ -967,7 +996,18 @@ button, input, select, textarea {
     background: none;
     border: none;
     cursor: pointer;
-    padding: 8px;
+    padding: 10px;
+    border: 1px solid rgba(26, 26, 26, 0.08);
+    border-radius: 12px;
+    background: #fff;
+    transition: border-color 180ms ease, background-color 180ms ease, box-shadow 180ms ease;
+}
+
+.hamburger:hover,
+.hamburger.active {
+    border-color: rgba(227, 24, 55, 0.24);
+    background: #fff6f7;
+    box-shadow: 0 4px 12px rgba(227, 24, 55, 0.08);
 }
 
 .hamburger span {
@@ -993,13 +1033,16 @@ button, input, select, textarea {
 .mobile-menu {
     display: none;
     position: fixed;
-    top: 72px;
+    top: 82px;
     left: 0;
     right: 0;
-    background-color: white;
-    box-shadow: var(--shadow);
     z-index: 999;
-    padding: 20px;
+    padding: 12px 20px 20px;
+    border-bottom: 1px solid rgba(26, 26, 26, 0.08);
+    border-radius: 0 0 20px 20px;
+    background: rgba(255, 255, 255, 0.98);
+    box-shadow: 0 18px 36px rgba(26, 26, 26, 0.13);
+    backdrop-filter: blur(16px);
 }
 
 .mobile-menu.active {
@@ -1009,18 +1052,25 @@ button, input, select, textarea {
 .mobile-nav-list {
     display: flex;
     flex-direction: column;
-    gap: 16px;
+    gap: 4px;
 }
 
 .mobile-nav-link {
+    display: block;
+    padding: 13px 14px;
+    border: 1px solid transparent;
+    border-radius: 11px;
+    color: #3b3b3b;
     font-size: 16px;
-    font-weight: 500;
-    color: var(--text-color);
-    padding: 12px;
-    border-bottom: 1px solid var(--border-color);
+    font-weight: 600;
+    transition: color 180ms ease, background-color 180ms ease, border-color 180ms ease, transform 180ms ease;
 }
 
-.mobile-nav-link:hover {
+.mobile-nav-link:hover,
+.mobile-nav-link:focus-visible {
+    transform: translateX(3px);
+    border-color: rgba(227, 24, 55, 0.1);
+    background: #fff4f5;
     color: var(--primary-color);
 }
 
@@ -2932,6 +2982,12 @@ section {
     .about-services .service-card::before,
     .about-services .service-card::after,
     .about-services .service-icon {
+        transition: none;
+    }
+
+    .nav-link::after,
+    .mobile-nav-link,
+    .hamburger {
         transition: none;
     }
 
