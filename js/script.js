@@ -513,12 +513,24 @@ function renderCategories() {
         const queryString = query.toString();
         link.href = `${category.page}${queryString ? `?${queryString}` : ''}`;
 
-        const image = document.createElement('img');
-        image.className = 'market-category-icon';
-        image.src = category.image;
-        image.alt = category.label;
-        image.loading = 'lazy';
-        image.decoding = 'async';
+        const categoryIcon = ['cars', 'tricycles'].includes(category.id)
+            ? document.createElement('span')
+            : document.createElement('img');
+        categoryIcon.className = 'market-category-icon';
+        if (categoryIcon.tagName === 'SPAN') {
+            categoryIcon.classList.add('market-category-upload-icon');
+            categoryIcon.setAttribute('aria-hidden', 'true');
+            const imageIcon = document.createElement('i');
+            imageIcon.className = 'fa-solid fa-image';
+            const downloadIcon = document.createElement('i');
+            downloadIcon.className = 'fa-solid fa-circle-arrow-down';
+            categoryIcon.append(imageIcon, downloadIcon);
+        } else {
+            categoryIcon.src = category.image;
+            categoryIcon.alt = category.label;
+            categoryIcon.loading = 'lazy';
+            categoryIcon.decoding = 'async';
+        }
         const name = document.createElement('span');
         name.className = 'market-category-name';
         name.textContent = category.label;
@@ -529,7 +541,7 @@ function renderCategories() {
         } else {
             count.textContent = category.countLabel || 'Browse';
         }
-        link.append(image, name, count);
+        link.append(categoryIcon, name, count);
         grid.append(link);
     });
 }

@@ -126,6 +126,41 @@ button, input, select, textarea {
     transition: var(--transition);
 }
 
+.home-feature-icon {
+    display: inline-grid;
+    width: 48px;
+    height: 48px;
+    place-items: center;
+    border-radius: 8px;
+    background: rgba(227, 24, 55, 0.1);
+    color: var(--primary-color);
+}
+
+.home-import-assistance-icon .fa-file-heart {
+    position: relative;
+    font-size: 27px;
+}
+
+.home-import-assistance-icon .fa-file-heart::before {
+    content: "\f15c";
+    font-family: "Font Awesome 6 Free";
+    font-weight: 400;
+}
+
+.home-import-assistance-icon .fa-file-heart::after {
+    position: absolute;
+    top: 2px;
+    right: -7px;
+    padding: 2px;
+    border-radius: 50%;
+    background: #fff;
+    color: var(--primary-color);
+    content: "\f004";
+    font-family: "Font Awesome 6 Free";
+    font-size: 12px;
+    font-weight: 900;
+}
+
 .feature-card:hover {
     transform: translateY(-5px);
     box-shadow: var(--shadow-hover);
@@ -3240,6 +3275,35 @@ button.admin-store-link {
     object-fit: contain;
     padding: 10px;
     transition: transform 0.2s ease, background-color 0.2s ease;
+}
+
+.market-category-icon.fa-solid {
+    color: var(--primary-color);
+    font-size: 32px;
+}
+
+.market-category-upload-icon {
+    position: relative;
+    display: block;
+    padding: 0;
+}
+
+.market-category-upload-icon .fa-image {
+    position: absolute;
+    top: 9px;
+    left: 5px;
+    color: var(--primary-color);
+    font-size: 38px;
+}
+
+.market-category-upload-icon .fa-circle-arrow-down {
+    position: absolute;
+    right: 0;
+    bottom: 2px;
+    color: var(--primary-color);
+    font-size: 24px;
+    background: #fff3f5;
+    border-radius: 50%;
 }
 
 .market-category:hover .market-category-icon,
