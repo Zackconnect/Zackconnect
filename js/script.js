@@ -835,9 +835,9 @@ function createVehicleCard(vehicle) {
     const sourceCountryLabel = vehicle.sourceCountry ? formatSourceCountry(vehicle.sourceCountry) : '';
     const availabilityBadge = vehicle.category === 'car'
         ? ''
-        : vehicle.availability === 'available'
-            ? '<span class="availability-badge-card">Available</span>'
-            : '<span class="availability-badge-card sold">Sold</span>';
+        : vehicle.availability === 'sold'
+            ? '<span class="availability-badge-card sold">Sold</span>'
+            : '';
     const mileageInfo = vehicle.mileage ? `<span class="vehicle-info-item">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <circle cx="12" cy="12" r="10"/>
