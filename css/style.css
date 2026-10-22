@@ -202,13 +202,25 @@ button, input, select, textarea {
     font-weight: 900;
 }
 
-.home-customer-service-icon .fa-messages-question {
+.home-customer-service-icon .fa-message-question {
+    position: relative;
     font-size: 27px;
 }
 
-.home-customer-service-icon .fa-messages-question::before {
-    content: "\f4b6";
+.home-customer-service-icon .fa-message-question::before {
+    content: "\f27a";
     font-family: "Font Awesome 6 Free";
+    font-weight: 900;
+}
+
+.home-customer-service-icon .fa-message-question::after {
+    position: absolute;
+    top: -5px;
+    right: -7px;
+    color: var(--primary-color);
+    content: "\f128";
+    font-family: "Font Awesome 6 Free";
+    font-size: 13px;
     font-weight: 900;
 }
 
