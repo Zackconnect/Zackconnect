@@ -202,6 +202,16 @@ button, input, select, textarea {
     font-weight: 900;
 }
 
+.home-customer-service-icon .fa-messages-question {
+    font-size: 27px;
+}
+
+.home-customer-service-icon .fa-messages-question::before {
+    content: "\f4b6";
+    font-family: "Font Awesome 6 Free";
+    font-weight: 900;
+}
+
 .feature-card:hover {
     transform: translateY(-5px);
     box-shadow: var(--shadow-hover);
