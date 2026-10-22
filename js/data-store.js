@@ -6,6 +6,17 @@
         'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=400&h=400&fit=crop',
         'images/car2.png'
     ]);
+    const legacySampleVehicles = new Set([
+        'Toyota Corolla 2018|2024-01-15',
+        'Toyota Camry 2020|2024-01-14',
+        'Honda Civic 2019|2024-01-13',
+        'Hyundai Tucson 2021|2024-01-12',
+        'Toyota Hilux 2022|2024-01-11',
+        'Bajaj RE Three-Wheeler|2024-01-10',
+        'Bajaj RE Three-Wheeler (Used)|2024-01-09',
+        'Bajaj Passenger Tricycle|2024-01-08',
+        'Bajaj Cargo Tricycle|2024-01-07'
+    ]);
     const defaultCategories = [
         { id: 'cars', label: 'Cars', image: defaultCategoryImage, page: 'cars.html', filters: [{ field: 'category', value: 'car' }], query: {} },
         { id: 'toyota', label: 'Toyota', image: defaultCategoryImage, page: 'cars.html', filters: [{ field: 'make', value: 'toyota' }], query: { make: 'toyota' } },
@@ -118,20 +129,11 @@
                 image: images[0] || tile.image || ''
             };
         });
-        if (state.carImportCatalogVersion !== 2) {
-            let nextVehicleId = Math.max(0, ...state.vehicles.map(vehicle => Number(vehicle.id) || 0));
-            defaultVehicles.filter(vehicle => vehicle.category === 'car').forEach(defaultVehicle => {
-                const existingVehicle = state.vehicles.find(vehicle => vehicle.title === defaultVehicle.title);
-                if (existingVehicle) {
-                    existingVehicle.listingType = 'import';
-                    if (!existingVehicle.sourceCountry) existingVehicle.sourceCountry = defaultVehicle.sourceCountry;
-                    return;
-                }
-                const idInUse = state.vehicles.some(vehicle => String(vehicle.id) === String(defaultVehicle.id));
-                const id = idInUse ? ++nextVehicleId : defaultVehicle.id;
-                state.vehicles.push({ ...defaultVehicle, id, listingType: 'import' });
-            });
-            state.carImportCatalogVersion = 2;
+        if (state.carImportCatalogVersion !== 3) {
+            state.vehicles = state.vehicles.filter(vehicle =>
+                !legacySampleVehicles.has(`${vehicle.title}|${vehicle.datePosted}`)
+            );
+            state.carImportCatalogVersion = 3;
         }
         state.vehicles = state.vehicles.map(vehicle => ({
             ...vehicle,
