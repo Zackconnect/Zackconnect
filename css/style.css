@@ -1074,6 +1074,33 @@ button, input, select, textarea {
     color: var(--primary-color);
 }
 
+.mobile-logout-item {
+    margin-top: 8px;
+    padding-top: 12px;
+    border-top: 1px solid rgba(26, 26, 26, 0.08);
+}
+
+.mobile-logout-btn {
+    width: 100%;
+    padding: 13px 15px;
+    border: 1px solid #171717;
+    border-radius: 11px;
+    background: #171717;
+    color: #fff;
+    font-size: 15px;
+    font-weight: 700;
+    text-align: center;
+    cursor: pointer;
+    transition: background-color 180ms ease, border-color 180ms ease, transform 180ms ease;
+}
+
+.mobile-logout-btn:hover,
+.mobile-logout-btn:focus-visible {
+    transform: translateY(-1px);
+    border-color: var(--primary-color);
+    background: var(--primary-color);
+}
+
 /* Hero Section */
 .hero {
     position: relative;
@@ -2773,6 +2800,10 @@ section {
 }
 
 @media (max-width: 768px) {
+    .header-actions #logoutBtn {
+        display: none !important;
+    }
+
     .import-section {
         padding: 36px 0 52px;
     }
@@ -3116,6 +3147,7 @@ section {
 
     .nav-link::after,
     .mobile-nav-link,
+    .mobile-logout-btn,
     .hamburger {
         transition: none;
     }

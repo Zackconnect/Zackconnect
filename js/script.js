@@ -303,16 +303,15 @@ document.addEventListener('DOMContentLoaded', function() {
     filteredVehicles = [...vehicles];
     
     // Show/hide logout button based on authentication
-    const logoutBtn = document.getElementById('logoutBtn');
-    if (logoutBtn && window.ZackconnectAuth) {
-        if (window.ZackconnectAuth.isAuthenticated()) {
+    const logoutButtons = [
+        document.getElementById('logoutBtn'),
+        ...document.querySelectorAll('.mobile-logout-btn')
+    ].filter(Boolean);
+    if (window.ZackconnectAuth?.isAuthenticated()) {
+        logoutButtons.forEach(logoutBtn => {
             logoutBtn.style.display = 'inline-block';
-            logoutBtn.addEventListener('click', () => {
-                if (window.ZackconnectAuth.logout) {
-                    window.ZackconnectAuth.logout();
-                }
-            });
-        }
+            logoutBtn.addEventListener('click', () => window.ZackconnectAuth.logout());
+        });
     }
 
     // Page-specific initialization
