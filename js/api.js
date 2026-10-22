@@ -3,6 +3,40 @@
    ============================================ */
 
 const API_BASE_URL = 'https://zackconnectautobackend.onrender.com/api';
+const publicVehiclesCacheKey = 'zackconnect_public_vehicles';
+const publicContentCacheKey = 'zackconnect_public_site_content';
+const publicCacheTtl = 60000;
+
+function readPublicCache(key, allowExpired = false) {
+    try {
+        const cached = sessionStorage.getItem(key);
+        if (!cached) return null;
+        const entry = JSON.parse(cached);
+        return allowExpired || entry.expiresAt > Date.now() ? entry.value : null;
+    } catch (error) {
+        console.warn('Could not read cached public data:', error);
+        return null;
+    }
+}
+
+function writePublicCache(key, value) {
+    try {
+        sessionStorage.setItem(key, JSON.stringify({
+            value,
+            expiresAt: Date.now() + publicCacheTtl
+        }));
+    } catch (error) {
+        console.warn('Could not cache public data:', error);
+    }
+}
+
+function clearPublicCache(key) {
+    try {
+        sessionStorage.removeItem(key);
+    } catch (error) {
+        console.warn('Could not clear cached public data:', error);
+    }
+}
 
 // API Helper Functions
 async function apiRequest(endpoint, options = {}) {
@@ -45,7 +79,13 @@ const VehiclesAPI = {
             ...tricycles.map(tricycle => this.transformTricycle(tricycle))
         ];
 
+        writePublicCache(publicVehiclesCacheKey, vehicles);
         return vehicles;
+    },
+
+    getCachedAll() {
+        const vehicles = readPublicCache(publicVehiclesCacheKey, true);
+        return Array.isArray(vehicles) ? vehicles : null;
     },
 
     async getById(id) {
@@ -111,20 +151,24 @@ const VehiclesAPI = {
 
         const method = id ? 'PUT' : 'POST';
         const path = id ? `${endpoint}/${encodeURIComponent(id)}` : endpoint;
-        return apiRequest(path, {
+        const result = await apiRequest(path, {
             method,
             headers: { Authorization: `Bearer ${token}` },
             body: JSON.stringify(body)
         });
+        clearPublicCache(publicVehiclesCacheKey);
+        return result;
     },
 
     async deleteAdmin(vehicle) {
         const token = localStorage.getItem('authToken');
         const endpoint = vehicle.category === 'car' ? '/cars' : '/tricycles';
-        return apiRequest(`${endpoint}/${encodeURIComponent(vehicle.id)}`, {
+        const result = await apiRequest(`${endpoint}/${encodeURIComponent(vehicle.id)}`, {
             method: 'DELETE',
             headers: { Authorization: `Bearer ${token}` }
         });
+        clearPublicCache(publicVehiclesCacheKey);
+        return result;
     },
 
     transformCar(car) {
@@ -267,14 +311,24 @@ let publicContentCache = null;
 let publicContentRequest = null;
 
 const SiteContentAPI = {
+    getCachedPublic() {
+        return readPublicCache(publicContentCacheKey, true);
+    },
+
     async getPublic() {
         if (publicContentCache && publicContentCache.expiresAt > Date.now()) {
             return publicContentCache.value;
         }
+        const cached = readPublicCache(publicContentCacheKey);
+        if (cached) {
+            publicContentCache = { value: cached, expiresAt: Date.now() + publicCacheTtl };
+            return cached;
+        }
         if (!publicContentRequest) {
             publicContentRequest = apiRequest('/site-content')
                 .then(value => {
-                    publicContentCache = { value, expiresAt: Date.now() + 60000 };
+                    publicContentCache = { value, expiresAt: Date.now() + publicCacheTtl };
+                    writePublicCache(publicContentCacheKey, value);
                     return value;
                 })
                 .finally(() => {
@@ -289,11 +343,14 @@ const SiteContentAPI = {
     },
 
     async saveAdmin(content) {
-        return apiRequest('/site-content/admin', {
+        const result = await apiRequest('/site-content/admin', {
             method: 'PUT',
             headers: adminHeaders(),
             body: JSON.stringify({ content })
         });
+        publicContentCache = null;
+        clearPublicCache(publicContentCacheKey);
+        return result;
     },
 
     async uploadImage(image) {

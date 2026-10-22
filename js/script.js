@@ -30,20 +30,31 @@ let toastMessage = document.getElementById('toastMessage');
 let toastClose = document.getElementById('toastClose');
 
 // Load vehicles from backend or localStorage
-async function loadVehicles() {
+async function loadVehicles(onUpdate = () => {}) {
+    const cachedVehicles = window.ZackconnectAPI?.VehiclesAPI.getCachedAll();
+    if (cachedVehicles) {
+        vehicles = cachedVehicles;
+        filteredVehicles = [...vehicles];
+        onUpdate();
+    }
+
     if (useBackendAPI && window.ZackconnectAPI) {
         try {
             vehicles = await window.ZackconnectAPI.VehiclesAPI.getAll();
             filteredVehicles = [...vehicles];
-            console.log('Vehicles loaded from backend:', vehicles.length);
+            onUpdate();
         } catch (error) {
-            console.error('Failed to load vehicles from backend, using localStorage fallback:', error);
-            vehicles = [...window.ZackconnectData.readState(sampleVehicles).vehicles];
-            filteredVehicles = [...vehicles];
+            console.error('Failed to load vehicles from backend:', error);
+            if (!cachedVehicles) {
+                vehicles = [...window.ZackconnectData.readState(sampleVehicles).vehicles];
+                filteredVehicles = [...vehicles];
+                onUpdate();
+            }
         }
     } else {
         vehicles = [...window.ZackconnectData.readState(sampleVehicles).vehicles];
         filteredVehicles = [...vehicles];
+        onUpdate();
     }
 }
 
@@ -88,9 +99,7 @@ document.addEventListener('DOMContentLoaded', function() {
     if (toast) initToast();
 
     const inventoryPages = new Set(['index.html', 'cars.html', 'tricycles.html', 'vehicle-details.html']);
-    const contentLoads = [loadPublicSiteContent()];
-    if (inventoryPages.has(currentPage)) contentLoads.push(loadVehicles());
-    Promise.all(contentLoads).then(() => {
+    const renderLoadedInventory = () => {
         refreshInventory();
         if (currentPage === 'index.html') {
             renderHomeVehicleTiles();
@@ -99,12 +108,26 @@ document.addEventListener('DOMContentLoaded', function() {
         } else if (currentPage === 'vehicle-details.html') {
             initVehicleDetailsPage();
         }
+    };
+    if (inventoryPages.has(currentPage)) {
+        loadVehicles(renderLoadedInventory);
+    }
+    loadPublicSiteContent().then(() => {
+        if (currentPage === 'index.html') {
+            renderCategories();
+            renderAnnouncements();
+        }
         window.ZackconnectApplySiteContent?.();
     });
 });
 
 async function loadPublicSiteContent() {
     if (!window.ZackconnectAPI?.SiteContentAPI) return;
+    const cachedContent = window.ZackconnectAPI.SiteContentAPI.getCachedPublic();
+    if (cachedContent) {
+        window.ZackconnectPublicContent = cachedContent;
+        window.ZackconnectApplySiteContent?.();
+    }
     try {
         window.ZackconnectPublicContent = await window.ZackconnectAPI.SiteContentAPI.getPublic();
     } catch (error) {
@@ -859,7 +882,7 @@ function createVehicleCard(vehicle) {
 
     card.innerHTML = `
         <div class="vehicle-image">
-            <img class="vehicle-card-image" src="${imageUrl}" alt="${title}">
+            <img class="vehicle-card-image" src="${imageUrl}" alt="${title}" loading="lazy" decoding="async">
             <span class="vehicle-badge ${badgeClass}">${escapeHtml(vehicle.condition)}</span>
             ${availabilityBadge}
             ${vehicleImages.length > 1 ? `

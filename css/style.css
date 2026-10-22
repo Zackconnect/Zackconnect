@@ -3046,7 +3046,7 @@ section {
 
 .login-page::after {
     z-index: -2;
-    background: url("../assets/login-background.png") center / cover no-repeat;
+    background: url("../assets/login-background.webp") center / cover no-repeat;
     animation: login-background-motion 7s ease-in-out infinite alternate;
     will-change: transform;
 }
