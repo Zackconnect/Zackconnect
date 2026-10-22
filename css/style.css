@@ -4567,6 +4567,10 @@ button.admin-store-link {
     gap: 24px;
 }
 
+.car-marketplace-layout.no-car-inventory > .car-marketplace-main {
+    grid-column: 1 / -1;
+}
+
 .car-filter-sidebar {
     display: grid;
     gap: 14px;

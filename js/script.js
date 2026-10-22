@@ -351,20 +351,10 @@ function initCarsPage() {
     if (filterCountry && params.has('country')) filterCountry.value = params.get('country');
     if (filterLocation && params.has('location')) filterLocation.value = params.get('location');
 
-    const carVehicles = vehicles.filter(v => v.category === 'car' && v.availability === 'available');
-    const hasCars = carVehicles.length > 0;
-    const filterSidebar = document.querySelector('.car-filter-sidebar');
-    const carResultsHeading = document.querySelector('.car-results-heading');
-    const searchSection = document.querySelector('.car-marketplace-main .search-section');
-    [filterSidebar, carResultsHeading, searchSection, browseGroups].forEach(element => {
-        if (element) element.hidden = !hasCars;
-    });
     const filterYear = document.getElementById('filterYear');
     if (filterYear && selectedYear) {
         setCarFilterValue(filterYear, selectedYear, selectedYear);
     }
-    const categoryCount = document.getElementById('carCategoryCount');
-    if (categoryCount) categoryCount.textContent = carVehicles.length.toLocaleString();
     const applyCarsFilters = initCarsFilters();
     initCarsSearch(applyCarsFilters);
     initCarsSorting(applyCarsFilters);
@@ -442,6 +432,7 @@ function renderCarModelYearGroups(params) {
 function renderCarsListings(vehiclesToRender) {
     if (!carsGrid) return;
     carsGrid.innerHTML = '';
+    updateCarsPageLayout();
     const noInventoryState = document.getElementById('carsNoInventory');
     const hasCars = vehicles.some(vehicle =>
         vehicle.category === 'car' && vehicle.availability === 'available'
@@ -462,6 +453,26 @@ function renderCarsListings(vehiclesToRender) {
         const card = createVehicleCard(vehicle);
         carsGrid.appendChild(card);
     });
+}
+
+function updateCarsPageLayout() {
+    const availableCars = vehicles.filter(vehicle =>
+        vehicle.category === 'car' && vehicle.availability === 'available'
+    );
+    const hasCars = availableCars.length > 0;
+    const filterSidebar = document.querySelector('.car-filter-sidebar');
+    const carResultsHeading = document.querySelector('.car-results-heading');
+    const searchSection = document.querySelector('.car-marketplace-main .search-section');
+    const browseGroups = document.getElementById('carBrowseGroups');
+    const categoryCount = document.getElementById('carCategoryCount');
+    const layout = document.querySelector('.car-marketplace-layout');
+
+    [filterSidebar, carResultsHeading, searchSection, browseGroups].forEach(element => {
+        if (element) element.hidden = !hasCars;
+    });
+    if (categoryCount) categoryCount.textContent = availableCars.length.toLocaleString();
+    if (layout) layout.classList.toggle('no-car-inventory', !hasCars);
+    renderCarModelYearGroups(new URLSearchParams(window.location.search));
 }
 
 // Render Tricycles Page
