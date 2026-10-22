@@ -550,9 +550,103 @@ button, input, select, textarea {
 }
 
 .about-intro {
-    max-width: 800px;
-    margin: 0 auto 40px;
+    position: relative;
+    max-width: 1040px;
+    margin: 0 auto 48px;
+    padding: 42px 56px;
+    overflow: hidden;
+    border: 1px solid rgba(227, 24, 55, 0.09);
+    border-radius: 24px;
+    background: linear-gradient(135deg, #fff8f9 0%, #fff 54%, #fff3f5 100%);
+    box-shadow: 0 16px 42px rgba(26, 26, 26, 0.06);
     text-align: center;
+    isolation: isolate;
+    transition: transform 240ms ease, box-shadow 240ms ease;
+}
+
+.about-intro::before {
+    position: absolute;
+    z-index: -1;
+    top: -115px;
+    right: -62px;
+    width: 260px;
+    height: 260px;
+    border: 1px solid rgba(227, 24, 55, 0.12);
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(227, 24, 55, 0.09), rgba(227, 24, 55, 0) 70%);
+    content: "";
+}
+
+.about-intro:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 22px 48px rgba(26, 26, 26, 0.09), 0 8px 22px rgba(227, 24, 55, 0.05);
+}
+
+.about-intro h2 {
+    position: relative;
+    display: inline-block;
+    margin: 0 0 22px;
+    color: var(--secondary-color);
+    font-size: clamp(28px, 4vw, 38px);
+    font-weight: 750;
+    letter-spacing: -0.04em;
+}
+
+.about-intro h2::after {
+    position: absolute;
+    right: 50%;
+    bottom: -10px;
+    width: 48px;
+    height: 4px;
+    border-radius: 4px;
+    background: linear-gradient(90deg, var(--primary-color), rgba(227, 24, 55, 0.28));
+    content: "";
+    transform: translateX(50%);
+    transition: width 240ms ease;
+}
+
+.about-intro:hover h2::after {
+    width: 76px;
+}
+
+.about-intro p {
+    position: relative;
+    max-width: 76ch;
+    margin: 0 auto;
+    color: var(--text-light);
+    font-size: 17px;
+    line-height: 1.8;
+}
+
+.about-intro p + p {
+    margin-top: 14px;
+    padding-top: 14px;
+    border-top: 1px solid rgba(26, 26, 26, 0.08);
+    color: var(--text-color);
+}
+
+@media (max-width: 600px) {
+    .about-intro {
+        margin-bottom: 36px;
+        padding: 30px 22px;
+        border-radius: 18px;
+        text-align: left;
+    }
+
+    .about-intro h2 {
+        margin-bottom: 20px;
+    }
+
+    .about-intro h2::after {
+        right: auto;
+        left: 0;
+        transform: none;
+    }
+
+    .about-intro p {
+        font-size: 15px;
+        line-height: 1.75;
+    }
 }
 
 .about-grid {
@@ -2593,6 +2687,8 @@ section {
     .about-grid .about-principle-card,
     .about-grid .about-principle-card::before,
     .about-grid .about-principle-card::after,
+    .about-intro,
+    .about-intro h2::after,
     .about-services .service-card,
     .about-services .service-card::before,
     .about-services .service-card::after,
@@ -2602,6 +2698,7 @@ section {
 
     .about-grid .about-principle-card:hover,
     .about-grid .about-values-card:hover,
+    .about-intro:hover,
     .about-services .service-card:hover,
     .about-services .service-card:hover .service-icon {
         transform: none;
