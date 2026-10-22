@@ -574,19 +574,105 @@ button, input, select, textarea {
 }
 
 .about-services {
-    margin-top: 40px;
+    margin-top: 48px;
+}
+
+.about-services > h2 {
+    margin-bottom: 24px;
+    font-size: clamp(26px, 3vw, 34px);
+    letter-spacing: -0.03em;
 }
 
 .service-card {
+    position: relative;
+    overflow: hidden;
     background: white;
-    padding: 30px;
+    padding: 32px;
+    border: 1px solid rgba(26, 26, 26, 0.06);
     border-radius: var(--radius-lg);
-    box-shadow: var(--shadow);
-    margin-bottom: 20px;
+    box-shadow: 0 10px 30px rgba(26, 26, 26, 0.06);
+    margin-bottom: 22px;
+    isolation: isolate;
+    transition: transform 240ms ease, box-shadow 240ms ease, border-color 240ms ease;
+}
+
+.about-services .service-card::before {
+    position: absolute;
+    z-index: -1;
+    top: -85px;
+    right: -70px;
+    width: 210px;
+    height: 210px;
+    border: 1px solid rgba(227, 24, 55, 0.12);
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(227, 24, 55, 0.08), rgba(227, 24, 55, 0) 70%);
+    content: "";
+    transition: transform 300ms ease;
+}
+
+.about-services .service-card::after {
+    display: block;
+    width: 42px;
+    height: 4px;
+    margin-top: 20px;
+    border-radius: 4px;
+    background: linear-gradient(90deg, var(--primary-color), rgba(227, 24, 55, 0.24));
+    content: "";
+    transition: width 240ms ease;
+}
+
+.about-services .service-card:hover {
+    transform: translateY(-6px);
+    border-color: rgba(227, 24, 55, 0.2);
+    box-shadow: 0 20px 42px rgba(26, 26, 26, 0.11), 0 8px 20px rgba(227, 24, 55, 0.07);
+}
+
+.about-services .service-card:hover::before {
+    transform: scale(1.15);
+}
+
+.about-services .service-card:hover::after {
+    width: 72px;
 }
 
 .service-icon {
-    margin-bottom: 15px;
+    display: grid;
+    width: 72px;
+    height: 72px;
+    margin-bottom: 20px;
+    place-items: center;
+    border: 1px solid rgba(227, 24, 55, 0.1);
+    border-radius: 18px;
+    background: linear-gradient(145deg, #fff0f2, #fff);
+    transition: transform 240ms ease, box-shadow 240ms ease;
+}
+
+.service-icon svg {
+    width: 48px;
+    height: 48px;
+}
+
+.about-services .service-card:hover .service-icon {
+    transform: translateY(-2px) scale(1.04);
+    box-shadow: 0 8px 18px rgba(227, 24, 55, 0.1);
+}
+
+.about-services .service-card h3 {
+    position: relative;
+    margin: 0 0 10px;
+    color: var(--secondary-color);
+    font-size: 21px;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+}
+
+.about-services .service-card p {
+    position: relative;
+    max-width: 90ch;
+    margin: 0;
+    color: var(--text-light);
+    font-size: 16px;
+    line-height: 1.75;
 }
 
 /* Tricycle Categories Tabs */
@@ -2506,12 +2592,18 @@ section {
 
     .about-grid .about-principle-card,
     .about-grid .about-principle-card::before,
-    .about-grid .about-principle-card::after {
+    .about-grid .about-principle-card::after,
+    .about-services .service-card,
+    .about-services .service-card::before,
+    .about-services .service-card::after,
+    .about-services .service-icon {
         transition: none;
     }
 
     .about-grid .about-principle-card:hover,
-    .about-grid .about-values-card:hover {
+    .about-grid .about-values-card:hover,
+    .about-services .service-card:hover,
+    .about-services .service-card:hover .service-icon {
         transform: none;
     }
 }
