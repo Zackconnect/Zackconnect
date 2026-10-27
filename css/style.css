@@ -5171,3 +5171,27 @@ button.admin-store-link {
         grid-template-columns: 1fr;
     }
 }
+
+.vehicle-actions .btn.view-details,
+.car-listings-page #carsGrid .vehicle-actions .btn.view-details {
+    flex: 0 0 auto;
+    width: fit-content;
+    min-height: 36px;
+    padding: 8px 14px;
+    border: 1px solid rgba(227, 24, 55, 0.28);
+    border-radius: 999px;
+    background: #fff;
+    color: var(--primary-color);
+    font-size: 12px;
+    font-weight: 700;
+    line-height: 1.2;
+}
+
+.vehicle-actions .btn.view-details:hover,
+.car-listings-page #carsGrid .vehicle-actions .btn.view-details:hover {
+    transform: translateY(-1px);
+    border-color: var(--primary-color);
+    background: var(--primary-color);
+    color: #fff;
+    box-shadow: 0 5px 12px rgba(227, 24, 55, 0.2);
+}
