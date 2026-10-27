@@ -12,6 +12,7 @@ A modern, professional vehicle import and Bajaj tricycle website for Ghana, buil
 - **Vehicle Details**: Detailed vehicle information pages with specifications and contact options
 - **Company Information**: Learn about Zackconnect's mission, vision, and services
 - **Contact Forms**: Enquiry forms for vehicles and import requests with WhatsApp integration
+- **Account Recovery**: Sign-in includes a forgot-password flow with emailed, one-time reset links
 - **Signup and Login Frontend**: Homepage links lead to signup and login screens, ready for backend authentication
 - **Admin Dashboard Prototype**: Manage vehicle listings and homepage tiles/categories/announcements; edit page copy, banner images, and section visibility; review local enquiries and import requests
 - **Responsive Design**: Works on desktop, tablet, and mobile devices
@@ -27,6 +28,8 @@ Zackconnect/
 ├── vehicle-details.html    # Individual vehicle details page
 ├── signup.html             # Account registration frontend
 ├── login.html              # Account login frontend
+├── forgot-password.html    # Request a password reset email
+├── reset-password.html     # Set a new password from a reset link
 ├── admin.html              # Browser-only admin dashboard prototype
 ├── import.html             # Import service request page
 ├── about.html              # Company information page

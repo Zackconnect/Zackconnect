@@ -9,7 +9,7 @@
         'admin.html'
     ]);
     const pageName = window.location.pathname.split('/').pop() || 'index.html';
-    const isAuthPage = pageName === 'signup.html' || pageName === 'login.html';
+    const isAuthPage = ['signup.html', 'login.html', 'forgot-password.html', 'reset-password.html'].includes(pageName);
     const isAdminPage = pageName === 'admin.html';
 
     function destinationFrom(value) {
@@ -158,6 +158,17 @@
         document.querySelectorAll('a[href="signup.html"]').forEach(link => {
             link.href = authUrl('signup.html', next);
         });
+        const forgotPasswordLink = document.getElementById('forgotPasswordLink');
+        if (forgotPasswordLink) {
+            const updateForgotPasswordLink = () => {
+                const email = emailInput.value.trim();
+                forgotPasswordLink.href = email
+                    ? `forgot-password.html?email=${encodeURIComponent(email)}`
+                    : 'forgot-password.html';
+            };
+            updateForgotPasswordLink();
+            emailInput.addEventListener('input', updateForgotPasswordLink);
+        }
 
         form.addEventListener('submit', async event => {
             event.preventDefault();
@@ -193,6 +204,86 @@
         });
     }
 
+    function initForgotPassword() {
+        const form = document.getElementById('forgotPasswordForm');
+        if (!form) return;
+
+        const emailInput = document.getElementById('forgotPasswordEmail');
+        const message = document.getElementById('forgotPasswordMessage');
+        const email = new URLSearchParams(window.location.search).get('email');
+        if (email) emailInput.value = email;
+
+        form.addEventListener('submit', async event => {
+            event.preventDefault();
+            showMessage(message, '');
+            message.classList.remove('is-success');
+
+            const enteredEmail = emailInput.value.trim();
+            if (!enteredEmail || !emailInput.validity.valid) {
+                showMessage(message, 'Enter a valid email address.');
+                return;
+            }
+            if (!window.ZackconnectAPI) {
+                showMessage(message, 'Password reset is unavailable right now. Please try again later.');
+                return;
+            }
+
+            try {
+                showMessage(message, 'Sending your reset link...');
+                await window.ZackconnectAPI.AuthAPI.requestPasswordReset(enteredEmail);
+                message.classList.add('is-success');
+                showMessage(message, 'If an account exists for that email, a password reset link will be sent.');
+            } catch (error) {
+                console.error('Password reset request error:', error);
+                showMessage(message, error.message || 'Could not send a reset link. Please try again.');
+            }
+        });
+    }
+
+    function initResetPassword() {
+        const form = document.getElementById('resetPasswordForm');
+        if (!form) return;
+
+        const message = document.getElementById('resetPasswordMessage');
+        const token = new URLSearchParams(window.location.search).get('token');
+        if (!token) {
+            form.hidden = true;
+            showMessage(message, 'This password reset link is invalid or incomplete. Request a new one to continue.');
+            return;
+        }
+
+        form.addEventListener('submit', async event => {
+            event.preventDefault();
+            showMessage(message, '');
+
+            const password = form.elements.password.value;
+            const confirmPassword = form.elements.confirmPassword.value;
+            if (password.length < 8) {
+                showMessage(message, 'Your password must be at least 8 characters.');
+                return;
+            }
+            if (password !== confirmPassword) {
+                showMessage(message, 'The passwords do not match.');
+                return;
+            }
+            if (!window.ZackconnectAPI) {
+                showMessage(message, 'Password reset is unavailable right now. Please try again later.');
+                return;
+            }
+
+            try {
+                showMessage(message, 'Updating your password...');
+                await window.ZackconnectAPI.AuthAPI.resetPassword(token, password);
+                message.classList.add('is-success');
+                showMessage(message, 'Your password has been reset. You can now log in.');
+                form.reset();
+            } catch (error) {
+                console.error('Password reset error:', error);
+                showMessage(message, error.message || 'This reset link is invalid or has expired. Request a new one.');
+            }
+        });
+    }
+
     if (isAdminPage && !isAuthenticated()) {
         window.location.replace(authUrl('login.html', 'admin.html'));
         return;
@@ -223,5 +314,7 @@
         if (pageName === 'index.html') initHomeGate();
         if (pageName === 'signup.html') initSignup();
         if (pageName === 'login.html') initLogin();
+        if (pageName === 'forgot-password.html') initForgotPassword();
+        if (pageName === 'reset-password.html') initResetPassword();
     });
 })();
