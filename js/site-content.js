@@ -8,7 +8,7 @@
         { id: 'import.html', label: 'Import' }
     ];
     const fields = [
-        { page: 'index.html', key: 'home.heroTitle', label: 'Homepage accessible title', type: 'text', default: 'Import cars from China, the USA, and Canada with Zackconnect Autos' },
+        { page: 'index.html', key: 'home.heroTitle', label: 'Homepage title', type: 'text', default: 'Import Cars from China, USA & Canada to Ghana' },
         { page: 'index.html', key: 'footer.tagline', label: 'Footer tagline (shared across pages)', type: 'text', default: 'Your Trusted Partner for Cars & Tricycles.' },
         { page: 'index.html', key: 'home.searchPlaceholder', label: 'Search placeholder', type: 'text', default: 'What are you looking for?', attribute: 'placeholder' },
         { page: 'index.html', key: 'home.benefitsTitle', label: 'Why choose heading', type: 'text', default: 'Why Choose Zackconnect Autos?' },
